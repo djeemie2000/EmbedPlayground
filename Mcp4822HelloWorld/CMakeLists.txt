@@ -36,8 +36,6 @@ set(SERCON /dev/ttyACM0)
 # build the executable
 set(BLINKLED_SRC
   main.cpp
-  MCP4822.cpp
-  MCP4822.h
 )
 
 set(BIN
@@ -48,6 +46,11 @@ include(../mbed-cmake/arm_mbed.cmake)
 
 # ------------------------------------------------------------------------------
 # build the executable
+
+include_directories(./../MCP4822)
+
+add_subdirectory(../MCP4822 MCP4822)
+
 add_executable(${BIN}
                 ${BLINKLED_SRC}
                 ${MBED_OBJECTS}
@@ -55,4 +58,5 @@ add_executable(${BIN}
 )
 
 target_link_libraries(${BIN}
+                        MCP4822
                         ${MBED_LIBS})
