@@ -35,7 +35,7 @@ set(SERCON /dev/ttyACM0)
 # ------------------------------------------------------------------------------
 # build the executable
 set(BLINKLED_SRC
-  BlinkLed.cpp
+  main.cpp
 )
 
 set(BIN
@@ -46,5 +46,11 @@ include(../mbed-cmake/arm_mbed.cmake)
 
 # ------------------------------------------------------------------------------
 # build the executable
-add_executable(${BIN} ${BLINKLED_SRC} ${MBED_OBJECTS} ${MBED_HEADERS})
-target_link_libraries(${BIN} ${MBED_LIBS})
+add_executable(${BIN}
+                ${BLINKLED_SRC}
+                ${MBED_OBJECTS}
+                ${MBED_HEADERS}
+)
+
+target_link_libraries(${BIN}
+                        ${MBED_LIBS})
