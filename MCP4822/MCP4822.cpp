@@ -36,8 +36,8 @@ void MCP4822::_init() {
 }
 
 void MCP4822::writeA(int ValueA) {
-    ValueA = ValueA &= 0x0FFF;
-    ValueA = ValueA |= 0x1000;      // Write to A register  
+    ValueA = ValueA & 0x0FFF;
+    ValueA = ValueA | 0x1000;      // Write to A register
     _ncs = 0;       // Chipselect the device.
     _spi.write(ValueA);
     _ncs = 1;
@@ -45,8 +45,8 @@ void MCP4822::writeA(int ValueA) {
 }
 
 void MCP4822::writeB(int ValueB) {
-    ValueB = ValueB &= 0x0FFF;
-    ValueB = ValueB |= 0x9000;      // Write to B register
+    ValueB = ValueB & 0x0FFF;
+    ValueB = ValueB | 0x9000;      // Write to B register
     _ncs = 0;       // Chipselect the device.
     _spi.write(ValueB);
     _ncs = 1;
@@ -69,25 +69,25 @@ void MCP4822::writeAB(int ValueA, int ValueB)
         
 
 void MCP4822::write(char chan, int value) {
-    value = value &= 0x0FFF;
+    value = value & 0x0FFF;
     switch(chan){
         case('A'):
-            value = value |= 0x1000;
+            value = value | 0x1000;
             break; 
         case('B'):
-            value = value |= 0x9000;
+            value = value | 0x9000;
             break;
         case('a'):
-            value = value |= 0x1000;
+            value = value | 0x1000;
             break; 
         case('b'):
-            value = value |= 0x9000;
+            value = value | 0x9000;
             break;
         case(0x01):
-            value = value |= 0x1000;
+            value = value | 0x1000;
             break; 
         case(0x02):
-            value = value |= 0x9000;
+            value = value | 0x9000;
             break;
         default: 
             break;        
