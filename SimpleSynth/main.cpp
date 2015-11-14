@@ -9,7 +9,7 @@ MCP4822 g_MCP(SPI_MOSI, SPI_SCK, SPI_CS);    // MOSI, SCLK, nCS
 Serial g_Serial(USBTX, USBRX); // tx, rx
 Timer g_Timer;
 
-const int g_SamplingFrequency = 40000;
+const int g_SamplingFrequency = 30000;
 CSimpleOscillator<float> g_Oscillator(g_SamplingFrequency);
 COnePoleLowPassFilter<float> g_LPF;
 
@@ -183,35 +183,42 @@ int main()
     myTicker.attach_us(OnTick, PeriodMicroSeconds);
 
     g_Serial.printf("Started! \r\n \r\n");
+
+    int PrevVal0 = 0;
+    int PrevVal1 = 0;
+    int PrevVal2 = 0;
+
     while(1)
     {
-        g_Serial.printf("Running \r\n");
+//        g_Serial.printf("Running \r\n");
 
         int Val0 = In0.read_u16();
         int Val1 = In1.read_u16();
         int Val2 = In2.read_u16();
-        g_Serial.printf("%d %d %d \r\n", Val0, Val1, Val2);
+        //g_Serial.printf("%d %d %d \r\n", Val0, Val1, Val2);
 
-        int Operator = Val0*(CSelectableOperatorFactory::SelectionList().size()-1)>>16;
-        g_Oscillator.SelectWaveform(Operator);
-        g_Serial.printf("Operator %d %s \r\n", Operator, CSelectableOperatorFactory::SelectionList()[Operator].c_str());
+        if(PrevVal0>>8!=Val0>>8)
+        {
+            int Operator = Val0*(CSelectableOperatorFactory::SelectionList().size()-1)>>16;
+            g_Oscillator.SelectWaveform(Operator);
+            g_Serial.printf("Operator %d %s \r\n", Operator, CSelectableOperatorFactory::SelectionList()[Operator].c_str());
+        }
+        PrevVal0 = Val0;
 
-        int MidiNote = Val1>>9;//16 to 7 bits
-        float Freq = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
-        g_Oscillator.SetFrequency(Freq);
-        g_Serial.printf("MidiNote %d Freq %f \r\n", MidiNote, Freq);
+        if(PrevVal1>>8!=Val1>>8)
+        {
+            int MidiNote = Val1>>9;//16 to 7 bits
+            float Freq = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
+            g_Oscillator.SetFrequency(Freq);
+            g_Serial.printf("MidiNote %d Freq %f \r\n", MidiNote, Freq);
+        }
+        PrevVal1 = Val1;
 
-        float CutOff = Val2/65536.0f;
-        g_LPF.SetParameter(CutOff);
-        g_Serial.printf("CutOff %f \r\n", Val2);
-
-        wait(0.1f);
-
-//        for(std::size_t Operator = 0; Operator+1<CSelectableOperatorFactory::SelectionList().size(); ++Operator)
-//        {
-//            g_Oscillator.SelectWaveform(Operator);
-//            g_Serial.printf("Operator %s \r\n", CSelectableOperatorFactory::SelectionList()[Operator].c_str());
-//            wait(2.0f);
-//        }
+        if(PrevVal2>>8!=Val2>>8)
+        {
+            float CutOff = Val2/65536.0f;
+            g_LPF.SetParameter(CutOff);
+            g_Serial.printf("CutOff %f \r\n", Val2);
+        }
     }
 }
