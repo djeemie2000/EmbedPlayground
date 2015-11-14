@@ -30,6 +30,11 @@ public:
         m_PhaseStepSign = -m_PhaseStepSign;
     }
 
+    void SetFrequency(T Frequency)
+    {
+        m_PhaseStep.SetFrequency(Frequency);
+    }
+
     void SelectWaveform(int Selection)
     {
         m_Operator.Select(Selection);
@@ -38,6 +43,11 @@ public:
     T operator()(T Frequency)
     {
         return m_Operator(m_PhaseGen(m_PhaseStepSign*m_PhaseStep(Frequency)));
+    }
+
+    T operator()()
+    {
+        return m_Operator(m_PhaseGen(m_PhaseStepSign*m_PhaseStep()));
     }
 
 private:
