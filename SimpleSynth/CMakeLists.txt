@@ -36,6 +36,7 @@ set(SERCON /dev/ttyACM0)
 # build the executable
 set(BLINKLED_SRC
   main.cpp
+    MidiNoteFrequencies.h
 )
 
 set(BIN
