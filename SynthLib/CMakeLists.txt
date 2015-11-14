@@ -7,12 +7,13 @@ ADD_DEFINITIONS(
 	# other flags
 )
 
-add_library(Json11
+add_library(SynthLib
     PhaseAccumulator.h
     PhaseStep.h
     SelectableOperator.h
     SelectableOperatorFactory.cpp
     SelectableOperatorFactory.h
     Triangle.h
+    OnePoleFilter.h
 )
 
