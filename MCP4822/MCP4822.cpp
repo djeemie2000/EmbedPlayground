@@ -35,35 +35,30 @@ void MCP4822::_init() {
     return;
 }
 
-void MCP4822::writeA(int ValueA) {
-    ValueA = ValueA & 0x0FFF;
-    ValueA = ValueA | 0x1000;      // Write to A register
+void MCP4822::writeA(int ValueA)
+{
     _ncs = 0;       // Chipselect the device.
-    _spi.write(ValueA);
+    _spi.write((ValueA & 0x0FFF) | 0x3000);
     _ncs = 1;
     return;
 }
 
-void MCP4822::writeB(int ValueB) {
-    ValueB = ValueB & 0x0FFF;
-    ValueB = ValueB | 0x9000;      // Write to B register
+void MCP4822::writeB(int ValueB)
+{
     _ncs = 0;       // Chipselect the device.
-    _spi.write(ValueB);
+    _spi.write((ValueB & 0x0FFF) | 0xB000);
     _ncs = 1;
     return;
 }
 
 void MCP4822::writeAB(int ValueA, int ValueB)
 {
-    ValueA = ValueA & 0x0FFF;
-    ValueA = ValueA | 0x1000;      // Write to A register
-    
-    ValueB = ValueB & 0x0FFF;
-    ValueB = ValueB | 0x9000;      // Write to B register
-    
     _ncs = 0;       // Chipselect the device.
-    _spi.write(ValueA);
-    _spi.write(ValueB);
+    _spi.write((ValueA & 0x0FFF) | 0x3000);
+    _ncs = 1;
+
+    _ncs = 0;
+    _spi.write((ValueB & 0x0FFF) | 0xB000);
     _ncs = 1;
 }
         

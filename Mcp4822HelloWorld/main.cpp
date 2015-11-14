@@ -14,7 +14,10 @@ void TestDacSpeed()
     int NumRepeats = 40000;
     for(int Repeat = 0; Repeat<NumRepeats; ++Repeat)
     {
-        MCP.writeAB((8*Repeat)%4096, (8*Repeat)%4096);
+        int ValueA = (8*Repeat)%4096;
+        int ValueB = (4*Repeat)%4096;
+
+        MCP.writeAB(ValueA, ValueB);
     }
     myTimer.stop();
     printf("The time taken for %d repeats was %d microseconds \r\n", NumRepeats, myTimer.read_us());
@@ -22,6 +25,7 @@ void TestDacSpeed()
 
 int main()
 {
+    printf("MCP4822 HelloWorld \r\n \r\n");
     while(1)
     {
         TestDacSpeed();
