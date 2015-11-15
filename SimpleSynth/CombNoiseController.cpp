@@ -9,7 +9,9 @@ CCombNoiseController::CCombNoiseController(mbed::Serial &SerialComm, MCP4822 &Mc
  , m_LPF()
  , m_Feedback(0.0f)
  , m_Frequency(110.0f)
- , m_CombFilter()//m_SamplingFrequency, 40.0f)
+ , m_FrequencyR(110.0f)
+ , m_CombFilter()
+ , m_CombFilterR()
 {
 }
 
@@ -18,6 +20,7 @@ void CCombNoiseController::Init()
     m_LPF.SetParameter(0.5f);
     m_Feedback = 0.5f;
     m_Frequency = GetMidiNoteFrequencyMilliHz(40)/1000.0f;
+    m_FrequencyR = 1.01*m_Frequency;
 }
 
 void CCombNoiseController::Test()
@@ -44,13 +47,14 @@ void CCombNoiseController::Stop()
     m_Ticker.detach();
 }
 
-void CCombNoiseController::Tick()
+namespace
 {
-    float Excite = m_LPF(m_LPF(m_LPF(m_LPF(m_Exciter()))));
-    float Out = m_CombFilter(Excite, m_Feedback, m_Frequency);
 
-    // convert and clamp to [0, 4096[
-    int Value = Out*2048;
+// convert and clamp to [0, 4096[
+template<class T>
+int ConvertandClamp(T In)
+{
+    int Value = In*2048;
     Value += 2048;
     if(Value<0)
     {
@@ -60,8 +64,18 @@ void CCombNoiseController::Tick()
     {
         Value = 4095;
     }
+    return Value;
+}
 
-    m_Mcp4822.writeAB(Value, Value);
+}
+
+void CCombNoiseController::Tick()
+{
+    float Excite = m_LPF(m_LPF(m_LPF(m_LPF(m_Exciter()))));
+    float Out = m_CombFilter(Excite, m_Feedback, m_Frequency);
+    float OutR = m_CombFilterR(Excite, m_Feedback, m_FrequencyR);
+
+    m_Mcp4822.writeAB(ConvertandClamp(Out), ConvertandClamp(OutR));
 }
 
 void CCombNoiseController::Process(int Value1, int Value2, int Value3)
@@ -74,7 +88,8 @@ void CCombNoiseController::Process(int Value1, int Value2, int Value3)
 
     int MidiNote = Value2>>9;//16 to 7 bits
     m_Frequency = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
-    m_SerialComm.printf("MidiNote %d Freq %f \r\n", MidiNote, m_Frequency);
+    m_FrequencyR = 1.01*m_Frequency;
+    m_SerialComm.printf("MidiNote %d Freq %f %f \r\n", MidiNote, m_Frequency, m_FrequencyR);
 
     float CutOff = Value3/65536.0f;
     m_LPF.SetParameter(CutOff);
