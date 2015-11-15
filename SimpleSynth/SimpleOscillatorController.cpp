@@ -80,7 +80,7 @@ void CSimpleOscillatorController::Process(int Value1, int Value2, int Value3)
     m_LPF.SetParameter(CutOff);
     m_SerialComm.printf("CutOff %f \r\n", CutOff);
 
-    wait(2.0f);
+    wait(1.0f);
 }
 
 void CSimpleOscillatorController::TestTickSpeed()

@@ -34,8 +34,8 @@ private:
     CNoise<float> m_Exciter;
     COnePoleLowPassFilter<float> m_LPF;
     float m_Feedback;
-    float m_Frequency;
+    float m_FrequencyL;
     float m_FrequencyR;
-    CCombFilter<float, m_SamplingFrequency, m_MinFrequency> m_CombFilter;
+    CCombFilter<float, m_SamplingFrequency, m_MinFrequency> m_CombFilterL;
     CCombFilter<float, m_SamplingFrequency, m_MinFrequency> m_CombFilterR;
 };
