@@ -2,15 +2,14 @@
 #include "MidiNoteFrequencies.h"
 
 CCombNoiseController::CCombNoiseController(mbed::Serial &SerialComm, MCP4822 &Mcp4822)
- : m_SamplingFrequency(50000)
- , m_SerialComm(SerialComm)
+ : m_SerialComm(SerialComm)
  , m_Mcp4822(Mcp4822)
  , m_Ticker()
  , m_Exciter()
  , m_LPF()
  , m_Feedback(0.0f)
  , m_Frequency(110.0f)
- , m_CombFilter(m_SamplingFrequency, 100.0f)
+ , m_CombFilter()//m_SamplingFrequency, 40.0f)
 {
 }
 
@@ -47,7 +46,8 @@ void CCombNoiseController::Stop()
 
 void CCombNoiseController::Tick()
 {
-    float Out = m_CombFilter(m_LPF(m_Exciter()), m_Feedback, m_Frequency);
+    float Excite = m_LPF(m_LPF(m_LPF(m_LPF(m_Exciter()))));
+    float Out = m_CombFilter(Excite, m_Feedback, m_Frequency);
 
     // convert and clamp to [0, 4096[
     int Value = Out*2048;

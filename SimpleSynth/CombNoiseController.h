@@ -24,7 +24,8 @@ private:
     void TestOscillatorSpeed();
     void TestTickSpeed();
 
-    const int m_SamplingFrequency;
+    static const int m_SamplingFrequency = 40000;
+    static const int m_MinFrequency = 40;
 
     Serial& m_SerialComm;
     MCP4822& m_Mcp4822;
@@ -34,5 +35,5 @@ private:
     COnePoleLowPassFilter<float> m_LPF;
     float m_Feedback;
     float m_Frequency;
-    CCombFilter<float> m_CombFilter;
+    CCombFilter<float, m_SamplingFrequency, m_MinFrequency> m_CombFilter;
 };
