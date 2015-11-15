@@ -61,42 +61,11 @@ void MCP4822::writeAB(int ValueA, int ValueB)
     _spi.write((ValueB & 0x0FFF) | 0xB000);
     _ncs = 1;
 }
-        
 
-void MCP4822::write(char chan, int value) {
-    value = value & 0x0FFF;
-    switch(chan){
-        case('A'):
-            value = value | 0x1000;
-            break; 
-        case('B'):
-            value = value | 0x9000;
-            break;
-        case('a'):
-            value = value | 0x1000;
-            break; 
-        case('b'):
-            value = value | 0x9000;
-            break;
-        case(0x01):
-            value = value | 0x1000;
-            break; 
-        case(0x02):
-            value = value | 0x9000;
-            break;
-        default: 
-            break;        
-    }
-    _ncs = 0;
-    _spi.write(value);
-    _ncs = 1;
-    return;
-}
-
-void MCP4822::shdn() {
+void MCP4822::shdn()
+{
     _ncs = 0;
     _spi.write(0x0000);
     _ncs = 1;
-    return;
 }
 

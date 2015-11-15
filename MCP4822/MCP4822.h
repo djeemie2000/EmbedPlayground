@@ -48,11 +48,6 @@ public:
     
     void writeAB(int ValueA, int ValueB);
     
-     /** Write to any output, accoding to letter.
-      *
-      *
-      */
-    void write(char chan, int value);
      /** Shutdown the output on specific channel
       *
       *
