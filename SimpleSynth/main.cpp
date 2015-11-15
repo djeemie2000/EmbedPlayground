@@ -50,6 +50,22 @@ void TestOscillatorSpeed()
         g_Serial.printf("The time taken for %d repeats was %d microseconds \r\n", NumRepeats, g_Timer.read_us());
     }
 
+    {
+        Oscillator.SetFrequency(110.0f);//faster if not always recalculating phase step from frequency
+        g_Timer.reset();
+        g_Timer.start();
+        float Sum = 0;
+        int NumRepeats = SamplingFrequency;
+        for(int Repeat = 0; Repeat<NumRepeats; ++Repeat)
+        {
+            Sum += Oscillator.Test();
+        }
+        g_Timer.stop();
+        g_Serial.printf("Operator Test -> %f \r\n", Sum);
+        g_Serial.printf("The time taken for %d repeats was %d microseconds \r\n", NumRepeats, g_Timer.read_us());
+    }
+
+
     g_Serial.printf("---------------\r\n");
 }
 
@@ -187,25 +203,24 @@ int main()
     int PrevVal0 = 0;
     int PrevVal1 = 0;
     int PrevVal2 = 0;
+    int PrevOperator = 0;
 
     while(1)
     {
-//        g_Serial.printf("Running \r\n");
-
         int Val0 = In0.read_u16();
         int Val1 = In1.read_u16();
         int Val2 = In2.read_u16();
-        //g_Serial.printf("%d %d %d \r\n", Val0, Val1, Val2);
 
-        if(PrevVal0>>8!=Val0>>8)
+        int Operator = Val0*(CSelectableOperatorFactory::SelectionList().size()-1)>>16;
+        if(PrevOperator!=Operator)
         {
-            int Operator = Val0*(CSelectableOperatorFactory::SelectionList().size()-1)>>16;
             g_Oscillator.SelectWaveform(Operator);
             g_Serial.printf("Operator %d %s \r\n", Operator, CSelectableOperatorFactory::SelectionList()[Operator].c_str());
         }
         PrevVal0 = Val0;
+        PrevOperator = Operator;
 
-        if(PrevVal1>>8!=Val1>>8)
+        if((PrevVal1>>9)!=(Val1>>9))
         {
             int MidiNote = Val1>>9;//16 to 7 bits
             float Freq = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
@@ -214,11 +229,12 @@ int main()
         }
         PrevVal1 = Val1;
 
-        if(PrevVal2>>8!=Val2>>8)
+        if(PrevVal2!=Val2)
         {
             float CutOff = Val2/65536.0f;
             g_LPF.SetParameter(CutOff);
-            g_Serial.printf("CutOff %f \r\n", Val2);
+            //g_Serial.printf("CutOff %f \r\n", CutOff);
         }
+        PrevVal2 = Val2;
     }
 }

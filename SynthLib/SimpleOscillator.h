@@ -50,6 +50,11 @@ public:
         return m_Operator(m_PhaseGen(m_PhaseStepSign*m_PhaseStep()));
     }
 
+    T Test()
+    {
+        return CPseudoSin<T>()(m_PhaseGen(m_PhaseStepSign*m_PhaseStep()));
+    }
+
 private:
     CPhaseStep<T> m_PhaseStep;
     CPhaseAccumulator<T> m_PhaseGen;
