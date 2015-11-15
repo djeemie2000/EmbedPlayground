@@ -3,9 +3,6 @@
 static const int MinMidiNoteNumber = 21;
 static const int MaxMidiNoteNumber = 127;
 
-
-
-
 static const int MidiNoteFrequencyMilliHz[] = {
   8175,// C-1
   8661,
@@ -137,8 +134,4 @@ static const int MidiNoteFrequencyMilliHz[] = {
   12543854//G8
 };
 
-int GetMidiNoteFrequencyMilliHz(int MidiNote)
-{
-  int Nr = min(MaxMidiNoteNumber, max(MidiNote, MinMidiNoteNumber));
-  return MidiNoteFrequencyMilliHz[Nr];
-}
+int GetMidiNoteFrequencyMilliHz(int MidiNote);

@@ -1,6 +1,7 @@
 #include "mbed.h"
 #include "MCP4822.h"
 #include "SimpleOscillatorController.h"
+#include "CombNoiseController.h"
 
 MCP4822 g_MCP(SPI_MOSI, SPI_SCK, SPI_CS);    // MOSI, SCLK, nCS
 
@@ -31,12 +32,13 @@ int main()
     AnalogIn In2(A2);
 
     // self test
-    CSimpleOscillatorController Controller(g_Serial, g_MCP);
+    CCombNoiseController Controller(g_Serial, g_MCP);
+    //CSimpleOscillatorController Controller(g_Serial, g_MCP);
+
     Controller.Init();
     Controller.Test();
 
     wait(2.0f);
-
     Controller.Start();
 
     while(1)

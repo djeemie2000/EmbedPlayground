@@ -15,5 +15,7 @@ add_library(SynthLib
     SelectableOperatorFactory.h
     Triangle.h
     OnePoleFilter.h
+    CombFilter.h
+    DelayLine2.h
 )
 
