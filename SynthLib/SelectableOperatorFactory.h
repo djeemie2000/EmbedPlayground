@@ -29,6 +29,11 @@ public:
             "NoOp" };
     }
 
+    static int Size()
+    {
+        return SelectionList().size();
+    }
+
     static CSelectableOperator<float> Create()
     {
         CSelectableOperator<float> Op;
