@@ -23,7 +23,10 @@ void CSimpleOscillatorController::Test()
 {
     m_SerialComm.printf("Testing SimpleOscillator...\r\n");
 
-    TestTickSpeed();
+    for(int Operator = 0; Operator<CSelectableOperatorFactory::Size(); ++Operator)
+    {
+        TestTickSpeed(Operator);
+    }
 }
 
 void CSimpleOscillatorController::Start()
@@ -83,9 +86,11 @@ void CSimpleOscillatorController::Process(int Value1, int Value2, int Value3)
     wait(1.0f);
 }
 
-void CSimpleOscillatorController::TestTickSpeed()
+void CSimpleOscillatorController::TestTickSpeed(int Operator)
 {
     m_SerialComm.printf("Test Tick speed\r\n");
+    m_SerialComm.printf("Operator = %s \r\n", CSelectableOperatorFactory::SelectionList()[Operator].c_str());
+    m_Oscillator.SelectWaveform(Operator);
     Timer l_Timer;
     l_Timer.reset();
     l_Timer.start();

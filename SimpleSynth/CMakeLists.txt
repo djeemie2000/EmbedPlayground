@@ -42,6 +42,8 @@ set(BLINKLED_SRC
   SimpleOscillatorController.h
   CombNoiseController.cpp
   CombNoiseController.h
+  IntSimpleOscillatorController.cpp
+  IntSimpleOscillatorController.h
 )
 
 set(BIN
@@ -53,7 +55,7 @@ include(../mbed-cmake/arm_mbed.cmake)
 # ------------------------------------------------------------------------------
 # build the executable
 
-include_directories(./../MCP4822 ./../SynthLib)
+include_directories(./../MCP4822 ./../SynthLib ./../IntSynthLib)
 
 add_subdirectory(../MCP4822 MCP4822)
 add_subdirectory(../SynthLib SynthLib)

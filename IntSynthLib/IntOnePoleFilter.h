@@ -4,16 +4,16 @@ namespace isl
 {
 
 template<class T, int Scale = 8>
-class CIntegerOnePoleLowPassFilter
+class COnePoleLowPassFilter
 {
 public:
-    CIntegerOnePoleLowPassFilter(T Initial)
+    COnePoleLowPassFilter(T Initial)
         : m_PrevOut(Initial)
         , m_A0(1<<Scale)
         , m_B1(0)
     {}
 
-    CIntegerOnePoleLowPassFilter()
+    COnePoleLowPassFilter()
           : m_PrevOut(0)
           , m_A0(1<<Scale)
           , m_B1(0)
@@ -47,10 +47,10 @@ private:
 };
 
 template<class T, int Scale>
-class CIntegerFeedbackOperator
+class CFeedbackOperator
 {
 public:
-  CIntegerFeedbackOperator()
+  CFeedbackOperator()
    : m_PrevOut(0)
    , m_Feedback(0)
   {}
@@ -101,10 +101,10 @@ private:
 //};
 
 template<class T, class FilterType, int N>
-class CIntegerMultiStageFilter
+class CMultiStageFilter
 {
 public:
-    CIntegerMultiStageFilter()
+    CMultiStageFilter()
         : m_Filter()
         , m_Stages(1)
     {

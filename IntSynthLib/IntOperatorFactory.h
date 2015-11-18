@@ -49,6 +49,11 @@ public:
         return IntNoOp<Scale>;
     }
 
+    static int Size()
+    {
+        return 8;
+    }
+
     static std::vector<std::string> AvailableOperatorNames()
     {
         return { "Saw+", "Saw-", "Pulse+", "Pulse-", "Sin", "Sinh", "Triangle", "Quadratic", "NoOp" };

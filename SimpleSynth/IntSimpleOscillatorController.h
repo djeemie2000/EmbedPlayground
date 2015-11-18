@@ -1,14 +1,14 @@
 #pragma once
 
 #include "mbed.h"
-#include "SimpleOscillator.h"
-#include "OnePoleFilter.h"
+#include "IntSimpleOscillator.h"
+#include "IntOnePoleFilter.h"
 #include "MCP4822.h"
 
-class CSimpleOscillatorController
+class CIntSimpleOscillatorController
 {
 public:
-    CSimpleOscillatorController(Serial& SerialComm, MCP4822& Mcp4822);
+    CIntSimpleOscillatorController(Serial& SerialComm, MCP4822& Mcp4822);
 
     void Init();
     void Test();
@@ -20,7 +20,7 @@ public:
 
 private:
     void TestDacSpeed();
-    void TestOscillatorSpeed(int Operator);
+    void TestOscillatorSpeed();
     void TestTickSpeed(int Operator);
 
 
@@ -30,6 +30,9 @@ private:
     MCP4822& m_Mcp4822;
     Ticker m_Ticker;
 
-    CSimpleOscillator<float> m_Oscillator;
-    COnePoleLowPassFilter<float> m_LPF;
+    static const int McpScale = 12;
+    static const int OscillatorScale = 16;
+    isl::CSimpleOscillator<OscillatorScale> m_Oscillator;
+    static const int LPFScale = 12;
+    isl::COnePoleLowPassFilter<int, LPFScale> m_LPF;
 };
