@@ -57,7 +57,7 @@ include_directories(./../MCP4822 ./../SynthLib)
 
 add_subdirectory(../MCP4822 MCP4822)
 add_subdirectory(../SynthLib SynthLib)
-
+add_subdirectory(../IntSynthLib IntSynthLib)
 
 add_executable(${BIN}
                 ${BLINKLED_SRC}
