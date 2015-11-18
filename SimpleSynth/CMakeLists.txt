@@ -29,7 +29,7 @@ set(USE_DSP true)
 # ------------------------------------------------------------------------------
 # for installing an serial console
 set(MBEDMOUNT /media/pj/NODE_F411RE)
-set(SERCON /dev/ttyACM0)
+set(SERCON /dev/ttyACM1)
 
 
 # ------------------------------------------------------------------------------
@@ -55,11 +55,13 @@ include(../mbed-cmake/arm_mbed.cmake)
 # ------------------------------------------------------------------------------
 # build the executable
 
-include_directories(./../MCP4822 ./../SynthLib ./../IntSynthLib)
+include_directories(./../MCP4822 ./../SynthLib ./../IntSynthLib ./../RotaryEncoder)
 
 add_subdirectory(../MCP4822 MCP4822)
 add_subdirectory(../SynthLib SynthLib)
 add_subdirectory(../IntSynthLib IntSynthLib)
+add_subdirectory(../RotaryEncoder RotaryEncoder)
+
 
 add_executable(${BIN}
                 ${BLINKLED_SRC}
@@ -68,6 +70,7 @@ add_executable(${BIN}
 )
 
 target_link_libraries(${BIN}
+                        RotaryEncoder
                         MCP4822
                         ${MBED_LIBS})
 

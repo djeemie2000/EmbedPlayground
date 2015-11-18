@@ -17,5 +17,6 @@ add_library(SynthLib
     OnePoleFilter.h
     CombFilter.h
     DelayLine2.h
+    Dummy.cpp
 )
 

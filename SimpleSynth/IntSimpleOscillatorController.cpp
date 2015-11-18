@@ -51,7 +51,7 @@ void CIntSimpleOscillatorController::Tick()
     int Out = m_LPF(m_Oscillator());//16 bits
 
     // convert and clamp to [0, 4096[
-    int Value = (Out>>(OscillatorScale-McpScale)) + 2048;
+    int Value = (Out>>(OscillatorScale-McpScale-1)) + 2048;
     if(Value<0)
     {
         Value = 0;
@@ -64,25 +64,44 @@ void CIntSimpleOscillatorController::Tick()
     m_Mcp4822.writeAB(Value, Value);
 }
 
-void CIntSimpleOscillatorController::Process(int Value1, int Value2, int Value3)
+namespace
+{
+
+int Clamp(int Value, int Min, int Max)
+{
+    if(Value<Min)
+        return Min;
+
+    if(Max<Value)
+        return Max;
+
+    return Value;
+}
+
+}
+
+void CIntSimpleOscillatorController::Process(int Value0, int Value1, int Value2)
 {
     //TODO
     m_SerialComm.printf("Running... \r\n");
 
-    int Operator = Value1*(isl::COperatorFactory<OscillatorScale>::Size()-1)>>16;
+    //int Operator = Value1*(isl::COperatorFactory<OscillatorScale>::Size()-1)>>16;
+    int Operator = Clamp(Value0, 0, isl::COperatorFactory<OscillatorScale>::Size());
     m_Oscillator.SelectOperator(Operator);
     m_SerialComm.printf("Operator %d %s \r\n", Operator, isl::COperatorFactory<OscillatorScale>::AvailableOperatorNames()[Operator].c_str());
 
-    int MidiNote = Value2>>9;//16 to 7 bits
+    //int MidiNote = Value2>>9;//16 to 7 bits
+    int MidiNote = Value1+64;
     int Freq = GetMidiNoteFrequencyMilliHz(MidiNote);
     m_Oscillator.SetFrequency(Freq);
     m_SerialComm.printf("MidiNote %d Freq %f \r\n", MidiNote, Freq*0.001f);
 
-    int CutOff = Value3>>4;//16bits to 12bits
+    //int CutOff = Value3>>4;//16bits to 12bits
+    int CutOff = Clamp(Value2*16, -2048, 2048) + 2048;//12bits
     m_LPF.SetParameter(CutOff);
     m_SerialComm.printf("CutOff %d \r\n", CutOff);
 
-    wait(1.0f);
+    //wait(1.0f);
 }
 
 void CIntSimpleOscillatorController::TestTickSpeed(int Operator)
