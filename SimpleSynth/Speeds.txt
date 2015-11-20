@@ -1,3 +1,5 @@
+INTEGER 
+
 SimpleSynth... 
  
 Testing SimpleOscillator...
@@ -35,7 +37,7 @@ The time taken for 50000 repeats was 192309 microseconds
 ---------------
 
 
-
+FLOAT with fpu
 
 ... 
 SimpleSynth... 
@@ -97,4 +99,69 @@ Operator = NoOp
 The time taken for 50000 repeats was 207469 microseconds 
 ---------------
 ... 
+
+
+FLOAT without FPU
+
+ 
+SimpleSynth... 
+ 
+Testing SimpleOscillator...
+Test Dac speed
+The time taken for 50000 repeats was 172534 microseconds 
+---------------
+Test Tick speed
+Operator = RampUp 
+The time taken for 50000 repeats was 372485 microseconds 
+---------------
+Test Tick speed
+Operator = RampDown 
+The time taken for 50000 repeats was 373065 microseconds 
+---------------
+Test Tick speed
+Operator = Triangle 
+The time taken for 50000 repeats was 487714 microseconds 
+---------------
+Test Tick speed
+Operator = FullPseudoSin 
+The time taken for 50000 repeats was 509115 microseconds 
+---------------
+Test Tick speed
+Operator = PseudoSin 
+The time taken for 50000 repeats was 541883 microseconds 
+---------------
+Test Tick speed
+Operator = Quadratic 
+The time taken for 50000 repeats was 429322 microseconds 
+---------------
+Test Tick speed
+Operator = InvQuadratic 
+The time taken for 50000 repeats was 490274 microseconds 
+---------------
+Test Tick speed
+Operator = Square 
+The time taken for 50000 repeats was 488228 microseconds 
+---------------
+Test Tick speed
+Operator = SquareQuadratic 
+The time taken for 50000 repeats was 475762 microseconds 
+---------------
+Test Tick speed
+Operator = RampUpDown 
+The time taken for 50000 repeats was 427463 microseconds 
+---------------
+Test Tick speed
+Operator = Pulse+ 
+The time taken for 50000 repeats was 407406 microseconds 
+---------------
+Test Tick speed
+Operator = Pulse- 
+The time taken for 50000 repeats was 407471 microseconds 
+---------------
+Test Tick speed
+Operator = NoOp 
+The time taken for 50000 repeats was 367193 microseconds 
+---------------
+... 
+
 
