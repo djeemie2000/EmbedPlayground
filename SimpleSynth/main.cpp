@@ -38,13 +38,20 @@ int main()
 
     // self test
     //CCombNoiseController Controller(g_Serial, g_MCP);
-    //CSimpleOscillatorController Controller(g_Serial, g_MCP);
-    CIntSimpleOscillatorController Controller(g_Serial, g_MCP);
+    CSimpleOscillatorController Controller(g_Serial, g_MCP);
+    //CIntSimpleOscillatorController Controller(g_Serial, g_MCP);
 
     Controller.Init();
     Controller.Test();
 
     wait(2.0f);
+
+    while(true)
+    {
+        g_Serial.printf("... \r\n");
+        wait(5.0f);
+    }
+
     Controller.Start();
 
     int PrevVal0 = 0;

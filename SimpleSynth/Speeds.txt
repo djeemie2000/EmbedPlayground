@@ -1,0 +1,100 @@
+SimpleSynth... 
+ 
+Testing SimpleOscillator...
+Test Tick speed
+Operator = Saw+ 
+The time taken for 50000 repeats was 189157 microseconds 
+---------------
+Test Tick speed
+Operator = Saw- 
+The time taken for 50000 repeats was 189755 microseconds 
+---------------
+Test Tick speed
+Operator = Pulse+ 
+The time taken for 50000 repeats was 191816 microseconds 
+---------------
+Test Tick speed
+Operator = Pulse- 
+The time taken for 50000 repeats was 191817 microseconds 
+---------------
+Test Tick speed
+Operator = Sin 
+The time taken for 50000 repeats was 193119 microseconds 
+---------------
+Test Tick speed
+Operator = Sinh 
+The time taken for 50000 repeats was 193383 microseconds 
+---------------
+Test Tick speed
+Operator = Triangle 
+The time taken for 50000 repeats was 191817 microseconds 
+---------------
+Test Tick speed
+Operator = Quadratic 
+The time taken for 50000 repeats was 192309 microseconds 
+---------------
+
+
+
+
+... 
+SimpleSynth... 
+ 
+Testing SimpleOscillator...
+Test Dac speed
+The time taken for 50000 repeats was 172534 microseconds 
+---------------
+Test Tick speed
+Operator = RampUp 
+The time taken for 50000 repeats was 207977 microseconds 
+---------------
+Test Tick speed
+Operator = RampDown 
+The time taken for 50000 repeats was 208503 microseconds 
+---------------
+Test Tick speed
+Operator = Triangle 
+The time taken for 50000 repeats was 213433 microseconds 
+---------------
+Test Tick speed
+Operator = FullPseudoSin 
+The time taken for 50000 repeats was 214226 microseconds 
+---------------
+Test Tick speed
+Operator = PseudoSin 
+The time taken for 50000 repeats was 213184 microseconds 
+---------------
+Test Tick speed
+Operator = Quadratic 
+The time taken for 50000 repeats was 211566 microseconds 
+---------------
+Test Tick speed
+Operator = InvQuadratic 
+The time taken for 50000 repeats was 212659 microseconds 
+---------------
+Test Tick speed
+Operator = Square 
+The time taken for 50000 repeats was 215509 microseconds 
+---------------
+Test Tick speed
+Operator = SquareQuadratic 
+The time taken for 50000 repeats was 213697 microseconds 
+---------------
+Test Tick speed
+Operator = RampUpDown 
+The time taken for 50000 repeats was 211350 microseconds 
+---------------
+Test Tick speed
+Operator = Pulse+ 
+The time taken for 50000 repeats was 211567 microseconds 
+---------------
+Test Tick speed
+Operator = Pulse- 
+The time taken for 50000 repeats was 211567 microseconds 
+---------------
+Test Tick speed
+Operator = NoOp 
+The time taken for 50000 repeats was 207469 microseconds 
+---------------
+... 
+

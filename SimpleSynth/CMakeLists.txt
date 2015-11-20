@@ -29,7 +29,7 @@ set(USE_DSP true)
 # ------------------------------------------------------------------------------
 # for installing an serial console
 set(MBEDMOUNT /media/pj/NODE_F411RE)
-set(SERCON /dev/ttyACM1)
+set(SERCON /dev/ttyACM0)
 
 
 # ------------------------------------------------------------------------------
