@@ -27,6 +27,8 @@ void CCombNoiseController::Test()
 {
     m_SerialComm.printf("Testing CombNoise...\r\n");
 
+    TestDacSpeed();
+
     TestTickSpeed();
 }
 
@@ -98,6 +100,25 @@ void CCombNoiseController::Process(int Value1, int Value2, int Value3)
     m_SerialComm.printf("CutOff %f \r\n", CutOff);
 
     wait(1.0f);
+}
+
+void CCombNoiseController::TestDacSpeed()
+{
+    m_SerialComm.printf("Test Dac speed\r\n");
+
+    Timer l_Timer;
+    l_Timer.reset();
+    l_Timer.start();
+    int NumRepeats = m_SamplingFrequency;
+    int Value = 2048;
+    for(int Repeat = 0; Repeat<NumRepeats; ++Repeat)
+    {
+        m_Mcp4822.writeAB(Value, Value);
+    }
+    l_Timer.stop();
+
+    m_SerialComm.printf("The time taken for %d repeats was %d microseconds \r\n", NumRepeats, l_Timer.read_us());
+    m_SerialComm.printf("---------------\r\n");
 }
 
 void CCombNoiseController::TestTickSpeed()

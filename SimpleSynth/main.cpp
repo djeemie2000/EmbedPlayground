@@ -37,8 +37,8 @@ int main()
     In2.Begin(D6, D7);
 
     // self test
-    //CCombNoiseController Controller(g_Serial, g_MCP);
-    CSimpleOscillatorController Controller(g_Serial, g_MCP);
+    CCombNoiseController Controller(g_Serial, g_MCP);
+    //CSimpleOscillatorController Controller(g_Serial, g_MCP);
     //CIntSimpleOscillatorController Controller(g_Serial, g_MCP);
 
     Controller.Init();

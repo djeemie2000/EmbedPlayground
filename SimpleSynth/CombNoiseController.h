@@ -24,7 +24,7 @@ private:
     void TestOscillatorSpeed();
     void TestTickSpeed();
 
-    static const int m_SamplingFrequency = 40000;
+    static const int m_SamplingFrequency = 50000;
     static const int m_MinFrequency = 40;
 
     Serial& m_SerialComm;
