@@ -1,50 +1,50 @@
-#include "CombNoiseController.h"
+#include "KarplusStrongController.h"
 #include "MidiNoteFrequencies.h"
 
-CCombNoiseController::CCombNoiseController(mbed::Serial &SerialComm, MCP4822 &Mcp4822)
+CKarplusStrongController::CKarplusStrongController(mbed::Serial &SerialComm, MCP4822 &Mcp4822)
  : m_SerialComm(SerialComm)
  , m_Mcp4822(Mcp4822)
  , m_Ticker()
- , m_Exciter()
- , m_LPF()
- , m_Feedback(0.0f)
+ , m_Damp(0.9f)
+ , m_Excitation(0.7f)
+ , m_AttackMilliSeconds(1.0f)
  , m_FrequencyL(110.0f)
  , m_FrequencyR(110.0f)
- , m_CombFilterL()
- , m_CombFilterR()
+ , m_KarplusStrong()
 {
 }
 
-void CCombNoiseController::Init()
+void CKarplusStrongController::Init()
 {
-    m_LPF.SetParameter(0.5f);
-    m_Feedback = 0.5f;
+    m_Damp = 0.9f;
+    m_Excitation = 0.65f;
+    m_AttackMilliSeconds = 1.0f;
     m_FrequencyL = GetMidiNoteFrequencyMilliHz(40)/1000.0f;
     m_FrequencyR = 1.01*m_FrequencyL;
 }
 
-void CCombNoiseController::Test()
+void CKarplusStrongController::Test()
 {
-    m_SerialComm.printf("Testing CombNoise...\r\n");
+    m_SerialComm.printf("Testing KarplusStrong...\r\n");
 
     TestDacSpeed();
 
     TestTickSpeed();
 }
 
-void CCombNoiseController::Start()
+void CKarplusStrongController::Start()
 {
-    m_SerialComm.printf("Starting CombNoise...\r\n");
+    m_SerialComm.printf("Starting KarplusStrong...\r\n");
 
     float PeriodMicroSeconds = 1000000.0f/m_SamplingFrequency;
     m_SerialComm.printf("Fs = %d Ps = %f\r\n", m_SamplingFrequency, PeriodMicroSeconds);
 
-    m_Ticker.attach_us(this, &CCombNoiseController::Tick, PeriodMicroSeconds);
+    m_Ticker.attach_us(this, &CKarplusStrongController::Tick, PeriodMicroSeconds);
 
     m_SerialComm.printf("Started!\r\n");
 }
 
-void CCombNoiseController::Stop()
+void CKarplusStrongController::Stop()
 {
     m_Ticker.detach();
 }
@@ -71,38 +71,37 @@ int ConvertandClamp(T In)
 
 }
 
-void CCombNoiseController::Tick()
+void CKarplusStrongController::Tick()
 {
-    float Excite = m_LPF(m_Exciter());
-    float Out = m_CombFilterL(Excite, m_Feedback);
-    float OutR = m_CombFilterR(Excite, m_Feedback);
+    float Out = m_KarplusStrong();
+    int OutValue = ConvertandClamp(Out);
 
-    m_Mcp4822.writeAB(ConvertandClamp(Out), ConvertandClamp(OutR));
+    m_Mcp4822.writeAB(OutValue, OutValue);
 }
 
-void CCombNoiseController::Process(int Value1, int Value2, int Value3)
+void CKarplusStrongController::Process(int Value1, int Value2, int Value3)
 {
     //TODO
     m_SerialComm.printf("Running... \r\n");
 
-    m_Feedback = Value1/65536.0f;
-    m_SerialComm.printf("Feedback %f \r\n", m_Feedback);
+    m_Damp = (Value1+128)/256.0f;
+    m_SerialComm.printf("Damp %f \r\n", m_Damp);
 
-    int MidiNote = Value2>>9;//16 to 7 bits
+    int MidiNote = Value2+64;
     m_FrequencyL = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
     m_FrequencyR = 1.01*m_FrequencyL;
-    m_CombFilterL.SetFrequency(m_FrequencyL);
-    m_CombFilterR.SetFrequency(m_FrequencyR);
     m_SerialComm.printf("MidiNote %d Freq %f %f \r\n", MidiNote, m_FrequencyL, m_FrequencyR);
 
-    float CutOff = Value3/65536.0f;
-    m_LPF.SetParameter(CutOff);
-    m_SerialComm.printf("CutOff %f \r\n", CutOff);
+    m_Excitation = (Value3+128)/256.0f;
+    m_SerialComm.printf("Excitation %f \r\n", m_Excitation);
+
+    //??
+    m_KarplusStrong.Excite(m_Excitation, m_FrequencyL, m_Damp, m_AttackMilliSeconds);
 
     //wait(1.0f);
 }
 
-void CCombNoiseController::TestDacSpeed()
+void CKarplusStrongController::TestDacSpeed()
 {
     m_SerialComm.printf("Test Dac speed\r\n");
 
@@ -121,7 +120,7 @@ void CCombNoiseController::TestDacSpeed()
     m_SerialComm.printf("---------------\r\n");
 }
 
-void CCombNoiseController::TestTickSpeed()
+void CKarplusStrongController::TestTickSpeed()
 {
     m_SerialComm.printf("Test Tick speed\r\n");
     Timer l_Timer;

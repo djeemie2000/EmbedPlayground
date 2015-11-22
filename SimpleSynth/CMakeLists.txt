@@ -44,6 +44,9 @@ set(BLINKLED_SRC
   CombNoiseController.h
   IntSimpleOscillatorController.cpp
   IntSimpleOscillatorController.h
+  KarplusStrongController.cpp
+  KarplusStrongController.h
+
 )
 
 set(BIN

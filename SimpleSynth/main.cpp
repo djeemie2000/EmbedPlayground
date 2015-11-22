@@ -3,6 +3,7 @@
 #include "SimpleOscillatorController.h"
 #include "CombNoiseController.h"
 #include "IntSimpleOscillatorController.h"
+#include "KarplusStrongController.h"
 #include "RotaryEncoder.h"
 
 MCP4822 g_MCP(SPI_MOSI, SPI_SCK, SPI_CS);    // MOSI, SCLK, nCS
@@ -37,20 +38,21 @@ int main()
     In2.Begin(D6, D7);
 
     // self test
-    CCombNoiseController Controller(g_Serial, g_MCP);
+    //CCombNoiseController Controller(g_Serial, g_MCP);
     //CSimpleOscillatorController Controller(g_Serial, g_MCP);
     //CIntSimpleOscillatorController Controller(g_Serial, g_MCP);
+    CKarplusStrongController Controller(g_Serial, g_MCP);
 
     Controller.Init();
     Controller.Test();
 
     wait(2.0f);
 
-    while(true)
-    {
-        g_Serial.printf("... \r\n");
-        wait(5.0f);
-    }
+//    while(true)
+//    {
+//        g_Serial.printf("... \r\n");
+//        wait(5.0f);
+//    }
 
     Controller.Start();
 
