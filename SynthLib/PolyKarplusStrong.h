@@ -14,6 +14,52 @@ namespace synthlib
 //capacity of delayline determined by lowest frequency
 // ...
 
+template<int Size>
+class CSelector
+{
+public:
+    CSelector()
+     : m_Current(-1)
+     , m_Active()
+    {
+        for(int idx = 0; idx<Size; ++idx)
+        {
+            m_Active[idx] = true;
+        }
+    }
+
+    int Select()
+    {
+        int Selected = -1;
+        for(int idx = 1; idx<Size && Selected==-1; ++idx)
+        {
+            int Tmp = (m_Current+idx)%Size;
+            if(m_Active[Tmp])
+            {
+                Selected = Tmp;
+                m_Current = Tmp;
+            }
+        }
+        return Selected;
+    }
+
+    bool GetActive(int Idx) const
+    {
+        return m_Active[Idx];
+    }
+
+    void SetActive(int Idx, bool Active)
+    {
+        m_Active[Idx] = Active;
+    }
+
+private:
+    int m_Current;
+    bool m_Active[Size];
+};
+
+
+
 template<class T, int Capacity, int NumOperators>
 class CPolyKarplusStrong
 {
@@ -51,13 +97,16 @@ public:
 
     void Excite(int Operator, T Excitation, T Frequency, T Damp, T AttackMilliSeconds)
     {
-        m_ExciterLPF.SetParameter(Excitation);
-        T Period = m_SamplingFrequencyHz/Frequency;
-        if(Period<Capacity)
+        if(0<=Operator && Operator<NumOperators)
         {
-            T AttackSamples = CConstNumSamplesGenerator<float>(m_SamplingFrequencyHz).SetMilliSeconds(AttackMilliSeconds);
+            m_ExciterLPF.SetParameter(Excitation);
+            T Period = m_SamplingFrequencyHz/Frequency;
+            if(Period<Capacity)
+            {
+                T AttackSamples = CConstNumSamplesGenerator<float>(m_SamplingFrequencyHz).SetMilliSeconds(AttackMilliSeconds);
 
-            m_Operator[Operator].ExciteOperator(Damp, Period, AttackSamples);
+                m_Operator[Operator].ExciteOperator(Damp, Period, AttackSamples);
+            }
         }
     }
 
