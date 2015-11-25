@@ -9,8 +9,8 @@ CKarplusStrongController::CKarplusStrongController(mbed::Serial &SerialComm, MCP
  , m_Excitation(0.7f)
  , m_AttackMilliSeconds(1.0f)
  , m_FrequencyL(110.0f)
- , m_FrequencyR(110.0f)
  , m_KarplusStrong()
+ , m_OperatorSelector()
 {
 }
 
@@ -20,7 +20,6 @@ void CKarplusStrongController::Init()
     m_Excitation = 0.65f;
     m_AttackMilliSeconds = 1.0f;
     m_FrequencyL = GetMidiNoteFrequencyMilliHz(40)/1000.0f;
-    m_FrequencyR = 1.01*m_FrequencyL;
 }
 
 void CKarplusStrongController::Test()
@@ -81,24 +80,23 @@ void CKarplusStrongController::Tick()
 
 void CKarplusStrongController::Process(int Value1, int Value2, int Value3)
 {
-    //TODO
-    m_SerialComm.printf("Running... \r\n");
-
     m_Damp = (Value1+128)/256.0f;
-    m_SerialComm.printf("Damp %f \r\n", m_Damp);
 
     int MidiNote = Value2+64;
-    m_FrequencyL = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
-    m_FrequencyR = 1.01*m_FrequencyL;
-    m_SerialComm.printf("MidiNote %d Freq %f %f \r\n", MidiNote, m_FrequencyL, m_FrequencyR);
+    float Freq = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
+    bool FreqChanged = std::abs(Freq-m_FrequencyL)>0.01f;
+    m_FrequencyL = Freq;
 
     m_Excitation = (Value3+128)/256.0f;
-    m_SerialComm.printf("Excitation %f \r\n", m_Excitation);
 
-    //??
-    m_KarplusStrong.Excite(m_Excitation, m_FrequencyL, m_Damp, m_AttackMilliSeconds);
+    if(FreqChanged)
+    {
+        int SelectedOperator = m_OperatorSelector.Select();
+        m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_FrequencyL, m_Damp, m_AttackMilliSeconds);
 
-    //wait(1.0f);
+        m_SerialComm.printf("Operator %d : MidiNote %d\r\n", 1+SelectedOperator, MidiNote);
+    }
+    m_SerialComm.printf("Freq %f Damp %f Exci %f \r\n", m_FrequencyL, m_Damp, m_Excitation);
 }
 
 void CKarplusStrongController::TestDacSpeed()

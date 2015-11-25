@@ -71,28 +71,12 @@ public:
         , m_ExciterNoise()
         , m_ExciterLPF()
         , m_Operator()
-        , m_CurrentOperator(0)
-        , m_NumOperators(NumOperators)
     {
     }
 
     void SetSamplingFrequency(std::uint64_t SamplingFrequencyHz)
     {
         m_SamplingFrequencyHz = SamplingFrequencyHz;
-    }
-
-    void SetNumOperators(int Num)
-    {
-        if(0<Num && Num<=NumOperators)
-        {
-            m_NumOperators = Num;
-        }
-    }
-
-    void Excite(T Excitation, T Frequency, T Damp, T AttackMilliSeconds)
-    {
-        Excite(m_CurrentOperator, Excitation, Frequency, Damp, AttackMilliSeconds);
-        m_CurrentOperator = (m_CurrentOperator+1)%m_NumOperators;
     }
 
     void Excite(int Operator, T Excitation, T Frequency, T Damp, T AttackMilliSeconds)
@@ -173,8 +157,6 @@ private:
     COnePoleLowPassFilter<T> m_ExciterLPF;
 
     SOperator m_Operator[NumOperators];
-    int m_CurrentOperator;
-    int m_NumOperators;    
 };
 
 }

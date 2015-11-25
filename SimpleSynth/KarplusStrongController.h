@@ -34,6 +34,6 @@ private:
     float m_Excitation;
     float m_AttackMilliSeconds;
     float m_FrequencyL;
-    float m_FrequencyR;
     synthlib::CPolyKarplusStrong<float, m_SamplingFrequency/m_MinFrequency, m_NumOperators> m_KarplusStrong;
+    synthlib::CSelector<m_NumOperators> m_OperatorSelector;
 };

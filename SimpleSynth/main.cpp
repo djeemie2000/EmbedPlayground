@@ -75,7 +75,7 @@ int main()
             PrevVal0 = Val0;
             PrevVal1 = Val1;
             PrevVal2 = Val2;
-            g_Serial.printf("%d %d %d \r\n", Val0, Val1, Val2);
+            //g_Serial.printf("%d %d %d \r\n", Val0, Val1, Val2);
 
             Controller.Process(Val0, Val1, Val2);
         }
