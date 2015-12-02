@@ -5,6 +5,7 @@
 #include "IntSimpleOscillatorController.h"
 #include "KarplusStrongController.h"
 #include "RotaryEncoder.h"
+#include "AnalogInManager.h"
 
 MCP4822 g_MCP(SPI_MOSI, SPI_SCK, SPI_CS);    // MOSI, SCLK, nCS
 
@@ -36,7 +37,19 @@ int main()
     In1.Begin(D4, D5);
     CRotaryEncoder In2;
     In2.Begin(D6, D7);
+
     DigitalIn Button1(D8);
+
+    const int AnalogInResolution = 7;
+    CAnalogInManager<AnalogInResolution> AnalogInManager;
+    bool Enabled[CAnalogInManager<AnalogInResolution>::Size];
+    Enabled[0] = false;
+    Enabled[1] = true;
+    Enabled[2] = true;
+    Enabled[3] = false;
+    Enabled[4] = false;
+    Enabled[5] = false;
+    AnalogInManager.Begin(Enabled, 8);
 
     // self test
     //CCombNoiseController Controller(g_Serial, g_MCP);
@@ -67,10 +80,13 @@ int main()
         In0.Read();
         In1.Read();
         In2.Read();
+        AnalogInManager.Update();
 
-        int Val0 = In0.GetPosition();//16 bit
+        //int Val0 = In0.GetPosition();
+        int Val0 = 2*AnalogInManager.Get(1)-128;
         int Val1 = In1.GetPosition();
-        int Val2 = In2.GetPosition();
+        //int Val2 = In2.GetPosition();
+        int Val2 = 2*AnalogInManager.Get(2)-128;
         int Val3 = Button1;
 
         if(Val0!=PrevVal0 || Val1!=PrevVal1 || Val2!=PrevVal2 || Val3!=PrevVal3)

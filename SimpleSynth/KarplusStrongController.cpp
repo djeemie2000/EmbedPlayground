@@ -10,8 +10,10 @@ CKarplusStrongController::CKarplusStrongController(mbed::Serial &SerialComm, MCP
  , m_Excitation(0.7f)
  , m_AttackMilliSeconds(1.0f)
  , m_FrequencyL(110.0f)
+ , m_Gate(false)
  , m_KarplusStrong()
  , m_OperatorSelector()
+ , m_SaturationShaper()
 {
 }
 
@@ -21,6 +23,7 @@ void CKarplusStrongController::Init()
     m_Excitation = 0.65f;
     m_AttackMilliSeconds = 1.0f;
     m_FrequencyL = GetMidiNoteFrequencyMilliHz(40)/1000.0f;
+    m_Gate = false;
     m_SaturationShaper.SetLUT(isl::LUT_SaturationTanH_4096, 4096);
 }
 
@@ -86,19 +89,18 @@ void CKarplusStrongController::Process(int Value1, int Value2, int Value3, int V
 
     int MidiNote = Value2+64;
     float Freq = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
-    //bool FreqChanged = std::abs(Freq-m_FrequencyL)>0.01f;
     m_FrequencyL = Freq;
 
     m_Excitation = (Value3+128)/256.0f;
 
-    //if(FreqChanged)
-    if(Value4)
+    if(!m_Gate && 0<Value4)
     {
         int SelectedOperator = m_OperatorSelector.Select();
         m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_FrequencyL, m_Damp, m_AttackMilliSeconds);
 
         m_SerialComm.printf("Operator %d : MidiNote %d\r\n", 1+SelectedOperator, MidiNote);
     }
+    m_Gate = 0<Value4;
     m_SerialComm.printf("Freq %f Damp %f Exci %f \r\n", m_FrequencyL, m_Damp, m_Excitation);
 }
 

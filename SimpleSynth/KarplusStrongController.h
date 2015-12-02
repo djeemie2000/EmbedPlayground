@@ -35,6 +35,7 @@ private:
     float m_Excitation;
     float m_AttackMilliSeconds;
     float m_FrequencyL;
+    bool m_Gate;
     synthlib::CPolyKarplusStrong<float, m_SamplingFrequency/m_MinFrequency, m_NumOperators> m_KarplusStrong;
     synthlib::CSelector<m_NumOperators> m_OperatorSelector;
     isl::CBipolarLUTShaper<int> m_SaturationShaper;

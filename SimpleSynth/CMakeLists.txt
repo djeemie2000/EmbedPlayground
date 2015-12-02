@@ -58,11 +58,12 @@ include(../mbed-cmake/arm_mbed.cmake)
 # ------------------------------------------------------------------------------
 # build the executable
 
-include_directories(./../MCP4822 ./../SynthLib ./../IntSynthLib ./../RotaryEncoder)
+include_directories(./../MCP4822 ./../SynthLib ./../IntSynthLib ./../Utilities ./../RotaryEncoder)
 
 add_subdirectory(../MCP4822 MCP4822)
 add_subdirectory(../SynthLib SynthLib)
 add_subdirectory(../IntSynthLib IntSynthLib)
+add_subdirectory(../Utilities Utilities)
 add_subdirectory(../RotaryEncoder RotaryEncoder)
 
 
