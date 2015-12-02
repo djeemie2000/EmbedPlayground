@@ -3,6 +3,7 @@
 #include "mbed.h"
 #include "PolyKarplusStrong.h"
 #include "MCP4822.h"
+#include "IntBipolarLUTShaper.h"
 
 class CKarplusStrongController
 {
@@ -36,4 +37,6 @@ private:
     float m_FrequencyL;
     synthlib::CPolyKarplusStrong<float, m_SamplingFrequency/m_MinFrequency, m_NumOperators> m_KarplusStrong;
     synthlib::CSelector<m_NumOperators> m_OperatorSelector;
+    isl::CBipolarLUTShaper<int> m_SaturationShaper;
+
 };

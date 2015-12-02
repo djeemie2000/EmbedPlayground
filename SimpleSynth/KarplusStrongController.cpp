@@ -1,5 +1,6 @@
 #include "KarplusStrongController.h"
 #include "MidiNoteFrequencies.h"
+#include "LUTSaturationTanH.h"
 
 CKarplusStrongController::CKarplusStrongController(mbed::Serial &SerialComm, MCP4822 &Mcp4822)
  : m_SerialComm(SerialComm)
@@ -20,6 +21,7 @@ void CKarplusStrongController::Init()
     m_Excitation = 0.65f;
     m_AttackMilliSeconds = 1.0f;
     m_FrequencyL = GetMidiNoteFrequencyMilliHz(40)/1000.0f;
+    m_SaturationShaper.SetLUT(isl::LUT_SaturationTanH_4096, 4096);
 }
 
 void CKarplusStrongController::Test()
@@ -73,7 +75,7 @@ int ConvertandClamp(T In)
 void CKarplusStrongController::Tick()
 {
     float Out = m_KarplusStrong();
-    int OutValue = ConvertandClamp(Out);
+    int OutValue = 2048 + m_SaturationShaper(2048*Out); //ConvertandClamp(Out);
 
     m_Mcp4822.writeAB(OutValue, OutValue);
 }
