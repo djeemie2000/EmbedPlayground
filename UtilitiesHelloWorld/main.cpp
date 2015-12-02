@@ -42,22 +42,25 @@ int main()
 
     const int Resolution = 8;
     CAnalogInManager<Resolution> Manager;
-    bool Enabled[CAnalogInManager<Resolution>::Size] = {true, false, false, false, false, false};
-    int AverageSize = 4;
+    bool Enabled[CAnalogInManager<Resolution>::Size] = {false, true, true, false, false, false};
+    int AverageSize = 8;
     Manager.Begin(Enabled, AverageSize);
 
-    int PrevValue = 0;
+    int PrevValue[CAnalogInManager<Resolution>::Size] = {-2, -2, -2, -2, -2, -2};
     while(true)
     {
         Manager.Update();
 
-        int Value = Manager.Get(0);
-        int Changed = PrevValue==Value ? 0 : 1;
-        PrevValue = Value;
-
-        if(Changed)
+        for(int Pin = 0; Pin<CAnalogInManager<Resolution>::Size; ++Pin)
         {
-            mySerial.printf("-> %d \r\n", Value);
+            int Value = Manager.Get(Pin);
+            int Changed = PrevValue[Pin]==Value ? 0 : 1;
+            PrevValue[Pin] = Value;
+
+            if(Changed)
+            {
+                mySerial.printf("Pin %d -> %d \r\n", Pin, Value);
+            }
         }
 
         wait_us(100);

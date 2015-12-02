@@ -10,9 +10,15 @@ public:
     static const int Size = 6;//TODO more flexible?
 
     CAnalogInManager()
-     : m_PinName{ A0, A1, A2, A3, A4, A5 }
+     : m_PinName()
     {
         //TODO flexible way to use other pins
+        m_PinName[0] = A0;
+        m_PinName[1] = A1;
+        m_PinName[2] = A2;
+        m_PinName[3] = A3;
+        m_PinName[4] = A4;
+        m_PinName[5] = A5;
 
         for(int Pin = 0; Pin<Size; ++Pin)
         {
@@ -54,24 +60,28 @@ public:
      */
     void Update()
     {
+        ++m_Counter;
         for(int Pin = 0; Pin<Size; ++Pin)
         {
             if(m_PinAnalogInEnabled[Pin])
             {
                 int Immediate = analogin_read_u16(&(m_PinAnalogIn[Pin]));
                 m_Value[Pin] += Immediate;
-                ++m_Counter;
 
                 if(m_AverageSize<=m_Counter)
                 {
                     int Average = m_Value[Pin]/m_AverageSize;
                     m_Value[Pin] = 0;
-                    m_Counter = 0;
 
                     m_StableValue[Pin] = m_Stable[Pin].Update(Average);
                 }
             }
         }
+        if(m_AverageSize<=m_Counter)
+        {
+            m_Counter = 0;
+        }
+
     }
 
     int Get(int Pin)

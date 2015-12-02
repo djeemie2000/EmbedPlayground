@@ -10,6 +10,7 @@ ADD_DEFINITIONS(
 add_library(Utilities
     StablePot.h
     RotaryValue.h
+    AnalogInManager.h
     Dummy.cpp
 )
 
