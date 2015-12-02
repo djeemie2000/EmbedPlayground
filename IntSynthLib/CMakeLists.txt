@@ -26,5 +26,7 @@ add_library(IntSynthLib
     IntSimpleOscillator.h
     IntSkewer2D.h
     IntUtilities.h
+    IntBipolarLUTShaper.h
+    LUTSaturationTanH.h
     Dummy.cpp
 )
