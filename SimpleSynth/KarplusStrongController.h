@@ -16,7 +16,7 @@ public:
     void Stop();
 
     void Tick(); // to be called by ticker
-    void Process(int Value1, int Value2, int Value3); // to be called in loop
+    void Process(int Value1, int Value2, int Value3, int Value4); // to be called in loop
 
 private:
     void TestDacSpeed();

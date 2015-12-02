@@ -80,18 +80,19 @@ void CKarplusStrongController::Tick()
     m_Mcp4822.writeAB(OutValue, OutValue);
 }
 
-void CKarplusStrongController::Process(int Value1, int Value2, int Value3)
+void CKarplusStrongController::Process(int Value1, int Value2, int Value3, int Value4)
 {
     m_Damp = (Value1+128)/256.0f;
 
     int MidiNote = Value2+64;
     float Freq = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
-    bool FreqChanged = std::abs(Freq-m_FrequencyL)>0.01f;
+    //bool FreqChanged = std::abs(Freq-m_FrequencyL)>0.01f;
     m_FrequencyL = Freq;
 
     m_Excitation = (Value3+128)/256.0f;
 
-    if(FreqChanged)
+    //if(FreqChanged)
+    if(Value4)
     {
         int SelectedOperator = m_OperatorSelector.Select();
         m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_FrequencyL, m_Damp, m_AttackMilliSeconds);

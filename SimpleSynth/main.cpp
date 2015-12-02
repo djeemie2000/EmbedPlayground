@@ -36,6 +36,7 @@ int main()
     In1.Begin(D4, D5);
     CRotaryEncoder In2;
     In2.Begin(D6, D7);
+    DigitalIn Button1(D8);
 
     // self test
     //CCombNoiseController Controller(g_Serial, g_MCP);
@@ -59,6 +60,7 @@ int main()
     int PrevVal0 = 0;
     int PrevVal1 = 0;
     int PrevVal2 = 0;
+    int PrevVal3 = 0;
 
     while(1)
     {
@@ -69,15 +71,17 @@ int main()
         int Val0 = In0.GetPosition();//16 bit
         int Val1 = In1.GetPosition();
         int Val2 = In2.GetPosition();
+        int Val3 = Button1;
 
-        if(Val0!=PrevVal0 || Val1!=PrevVal1 || Val2!=PrevVal2)
+        if(Val0!=PrevVal0 || Val1!=PrevVal1 || Val2!=PrevVal2 || Val3!=PrevVal3)
         {
             PrevVal0 = Val0;
             PrevVal1 = Val1;
             PrevVal2 = Val2;
+            PrevVal3 = Val3;
             //g_Serial.printf("%d %d %d \r\n", Val0, Val1, Val2);
 
-            Controller.Process(Val0, Val1, Val2);
+            Controller.Process(Val0, Val1, Val2, Val3);
         }
         wait_ms(1);//necessary?
     }
