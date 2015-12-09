@@ -1,5 +1,6 @@
 #include "mbed.h"
 #include "SerialBuffer.h"
+#include "RawMidiByteParser.h"
 
 //Serial pc6(PA_11, PA_12);//serial 6
 
@@ -14,6 +15,28 @@ void OnRecieve()
     g_SerialBuffer.Write(pc6.getc());
 }
 
+class CMidiHandler
+{
+public:
+    CMidiHandler()
+    {}
+
+    void OnNoteOff(int Note, int Velocity, int Channel)
+    {
+        printf("NoteOff %d (%d) - Ch %d \r\n", Note, Velocity, Channel);
+    }
+
+    void OnNoteOn(int Note, int Velocity, int Channel)
+    {
+        printf("NoteOn %d (%d) - Ch %d \r\n", Note, Velocity, Channel);
+    }
+
+    void OnControlChange(int Controller, int Value, int Channel)
+    {
+        printf("ControlChange %d (%d) - Ch %d \r\n", Controller, Value, Channel);
+    }
+};
+
 int main()
 {
     DigitalOut myled(LED1);
@@ -21,9 +44,12 @@ int main()
 
     pc.printf("Serial Midi In hello world...\r\n");
 
+    CRawMidiParser Parser;
+    CMidiHandler Handler;
 
-    int Baud = 9600;
-    //int Baud = 31250;/midi baudrate
+    //int Baud = 9600;
+    int Baud = 31250;//midi baudrate
+    //int Baud = 115200;
     pc6.baud(Baud);
     printf("Baud rate = %d \r\n", Baud);
 
@@ -31,7 +57,7 @@ int main()
 
     while(1)
     {
-        wait(0.2f);
+        wait(0.02f);
 
         int Available = g_SerialBuffer.Available();
         if(0<Available)
@@ -41,7 +67,9 @@ int main()
             printf("Read: %d \r\n", Available);
             for(int idx = 0; idx<Available; ++idx)
             {
-                printf("0x%x ", g_SerialBuffer.Read());
+                int Byte = g_SerialBuffer.Read();
+                printf("0x%x ", Byte);
+                Parser.Parse(Byte, Handler);
             }
             printf("\r\n");
         }

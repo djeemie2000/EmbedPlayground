@@ -43,6 +43,10 @@ set(BIN
   SerialMidiInHelloWorld
 )
 
+include_directories(./../MidiLib)
+
+add_subdirectory(../MidiLib MidiLib)
+
 include(../mbed-cmake/arm_mbed.cmake)
 
 # ------------------------------------------------------------------------------
@@ -54,4 +58,5 @@ add_executable(${BIN}
 )
 
 target_link_libraries(${BIN}
-                        ${MBED_LIBS})
+                        ${MBED_LIBS}
+                        MidiLib)
