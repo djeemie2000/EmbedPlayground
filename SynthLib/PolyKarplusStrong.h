@@ -124,8 +124,8 @@ private:
         {
             m_DampLPF.SetParameter(Damp);
             m_DCOffset.Reset(0);
-            m_Envelope.NoteOn();
             m_Envelope.SetAttackSamples(AttackSamples);
+            m_Envelope.NoteOn();
             m_Period = Period;
             m_Cntr = m_Period;
         }
