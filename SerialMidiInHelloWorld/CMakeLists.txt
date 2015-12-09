@@ -36,6 +36,7 @@ set(SERCON /dev/ttyACM0)
 # build the executable
 set(SerialMidiInHelloWorld_SRC
   main.cpp
+  SerialBuffer.h
 )
 
 set(BIN

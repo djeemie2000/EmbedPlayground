@@ -1,30 +1,17 @@
 #include "mbed.h"
+#include "SerialBuffer.h"
 
 //Serial pc6(PA_11, PA_12);//serial 6
 
-const int RecieveBufferSize = 32;
-char g_RecieveBuffer[RecieveBufferSize];
-int g_RecieveCounterBuffer[RecieveBufferSize];
-int g_RecieveCounter;
+const int RecieveBufferSize = 128;
 
 Serial pc6(D8, D2);//serial 1??
 
+CSerialBuffer<int, RecieveBufferSize> g_SerialBuffer;
+
 void OnRecieve()
 {
-    int Index = g_RecieveCounter%RecieveBufferSize;
-    g_RecieveBuffer[Index] = pc6.getc();
-    g_RecieveCounterBuffer[Index] = g_RecieveCounter;
-    ++g_RecieveCounter;
-}
-
-void PrintRecieveBuffer()
-{
-    printf("Buffer: \r\n");
-    for(int idx = 0; idx<RecieveBufferSize; ++idx)
-    {
-        printf("%d : 0x%x \r\n", g_RecieveCounterBuffer[idx], g_RecieveBuffer[idx]);
-    }
-    printf("\r\n");
+    g_SerialBuffer.Write(pc6.getc());
 }
 
 int main()
@@ -40,16 +27,23 @@ int main()
     pc6.baud(Baud);
     printf("Baud rate = %d \r\n", Baud);
 
-    g_RecieveCounter = 0;
     pc6.attach(&OnRecieve);
 
     while(1)
     {
-        int Cntr = g_RecieveCounter;
         wait(0.2f);
-        if(Cntr!=g_RecieveCounter)
+
+        int Available = g_SerialBuffer.Available();
+        if(0<Available)
         {
-            PrintRecieveBuffer();
+            printf("OverWrites: %d \r\n", g_SerialBuffer.NumOverWrites());
+
+            printf("Read: %d \r\n", Available);
+            for(int idx = 0; idx<Available; ++idx)
+            {
+                printf("0x%x ", g_SerialBuffer.Read());
+            }
+            printf("\r\n");
         }
     }
 }
