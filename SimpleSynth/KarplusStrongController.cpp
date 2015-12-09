@@ -53,28 +53,6 @@ void CKarplusStrongController::Stop()
     m_Ticker.detach();
 }
 
-namespace
-{
-
-// convert and clamp to [0, 4096[
-template<class T>
-int ConvertandClamp(T In)
-{
-    int Value = In*2048;
-    Value += 2048;
-    if(Value<0)
-    {
-        Value = 0;
-    }
-    else if(4095<Value)
-    {
-        Value = 4095;
-    }
-    return Value;
-}
-
-}
-
 void CKarplusStrongController::Tick()
 {
     float Out = m_KarplusStrong();
@@ -102,6 +80,52 @@ void CKarplusStrongController::Process(int Value1, int Value2, int Value3, int V
     }
     m_Gate = 0<Value4;
     m_SerialComm.printf("Freq %f Damp %f Exci %f \r\n", m_FrequencyL, m_Damp, m_Excitation);
+}
+
+void CKarplusStrongController::OnNoteOff(int /*Note*/, int /*Velocity*/, int /*Channel*/)
+{
+    // ignored
+}
+
+void CKarplusStrongController::OnNoteOn(int Note, int /*Velocity*/, int /*Channel*/)
+{
+    int MidiNote = Note;
+    m_FrequencyL = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
+
+    // ??
+    // use velocity for excitation?
+    // use average of param + velocity?
+
+    int SelectedOperator = m_OperatorSelector.Select();
+    m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_FrequencyL, m_Damp, m_AttackMilliSeconds);
+
+    m_SerialComm.printf("Operator %d : MidiNote %d Freq %f \r\n", 1+SelectedOperator, MidiNote, m_FrequencyL);
+}
+
+void CKarplusStrongController::OnControlChange(int Controller, int Value, int Channel)
+{
+    bool Handled = true;
+    if(Controller==17)
+    {
+        m_Damp = (1+Value)/128.0f;
+    }
+    else if(Controller==18)
+    {
+        m_Excitation = (1+Value)/128.0f;
+    }
+    else if(Controller==19)
+    {
+        // 0 to ~1600
+        m_AttackMilliSeconds = Value*Value/10.0f;
+    }
+    else
+    {
+        Handled = false;
+    }
+    if(Handled)
+    {
+        m_SerialComm.printf("Damp %f Exci %f Atck %f \r\n", m_Damp, m_Excitation, m_AttackMilliSeconds);
+    }
 }
 
 void CKarplusStrongController::TestDacSpeed()

@@ -16,7 +16,13 @@ public:
     void Stop();
 
     void Tick(); // to be called by ticker
+
     void Process(int Value1, int Value2, int Value3, int Value4); // to be called in loop
+
+    // MidiHandler
+    void OnNoteOff(int Note, int Velocity, int Channel);
+    void OnNoteOn(int Note, int Velocity, int Channel);
+    void OnControlChange(int Controller, int Value, int Channel);
 
 private:
     void TestDacSpeed();
