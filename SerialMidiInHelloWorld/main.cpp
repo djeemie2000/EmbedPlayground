@@ -1,6 +1,7 @@
 #include "mbed.h"
 #include "SerialBuffer.h"
 #include "RawMidiByteParser.h"
+#include "LogMidiHandler.h"
 
 //Serial pc6(PA_11, PA_12);//serial 6
 
@@ -15,28 +16,6 @@ void OnRecieve()
     g_SerialBuffer.Write(pc6.getc());
 }
 
-class CMidiHandler
-{
-public:
-    CMidiHandler()
-    {}
-
-    void OnNoteOff(int Note, int Velocity, int Channel)
-    {
-        printf("NoteOff %d (%d) - Ch %d \r\n", Note, Velocity, Channel);
-    }
-
-    void OnNoteOn(int Note, int Velocity, int Channel)
-    {
-        printf("NoteOn %d (%d) - Ch %d \r\n", Note, Velocity, Channel);
-    }
-
-    void OnControlChange(int Controller, int Value, int Channel)
-    {
-        printf("ControlChange %d (%d) - Ch %d \r\n", Controller, Value, Channel);
-    }
-};
-
 int main()
 {
     DigitalOut myled(LED1);
@@ -45,7 +24,7 @@ int main()
     pc.printf("Serial Midi In hello world...\r\n");
 
     CRawMidiParser Parser;
-    CMidiHandler Handler;
+    CLogMidiHandler Handler;
 
     //int Baud = 9600;
     int Baud = 31250;//midi baudrate

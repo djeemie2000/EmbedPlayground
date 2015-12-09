@@ -11,6 +11,7 @@ add_library(Utilities
     StablePot.h
     RotaryValue.h
     AnalogInManager.h
+    SerialBuffer.h
     Dummy.cpp
 )
 

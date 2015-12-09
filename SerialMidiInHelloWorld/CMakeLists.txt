@@ -36,16 +36,17 @@ set(SERCON /dev/ttyACM0)
 # build the executable
 set(SerialMidiInHelloWorld_SRC
   main.cpp
-  SerialBuffer.h
 )
 
 set(BIN
   SerialMidiInHelloWorld
 )
 
-include_directories(./../MidiLib)
+include_directories(./../MidiLib ./../Utilities)
 
 add_subdirectory(../MidiLib MidiLib)
+add_subdirectory(../Utilities Utilities)
+
 
 include(../mbed-cmake/arm_mbed.cmake)
 
