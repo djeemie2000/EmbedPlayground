@@ -24,6 +24,9 @@ public:
     void OnNoteOn(int Note, int Velocity, int Channel);
     void OnControlChange(int Controller, int Value, int Channel);
 
+    // interrupt handler
+    void OnInterrupt(int Interrupt);
+
 private:
     void TestDacSpeed();
     void TestOscillatorSpeed();

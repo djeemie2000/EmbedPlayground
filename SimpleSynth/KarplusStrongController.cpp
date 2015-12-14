@@ -128,6 +128,24 @@ void CKarplusStrongController::OnControlChange(int Controller, int Value, int Ch
     }
 }
 
+void CKarplusStrongController::OnInterrupt(int Interrupt)
+{
+    if(Interrupt==1)
+    {
+        int SelectedOperator = m_OperatorSelector.Select();
+        m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_FrequencyL, m_Damp, m_AttackMilliSeconds);
+
+        m_SerialComm.printf("Operator %d : MidiNote ? Freq %f \r\n", 1+SelectedOperator, m_FrequencyL);
+    }
+    else if(Interrupt==2)
+    {
+        int SelectedOperator = m_OperatorSelector.Select();
+        m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_FrequencyL*2, m_Damp, m_AttackMilliSeconds);
+
+        m_SerialComm.printf("Operator %d : MidiNote ? Freq %f \r\n", 1+SelectedOperator, m_FrequencyL*2);
+    }
+}
+
 void CKarplusStrongController::TestDacSpeed()
 {
     m_SerialComm.printf("Test Dac speed\r\n");

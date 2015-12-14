@@ -7,12 +7,14 @@
 #include "SerialBuffer.h"
 #include "RawMidiByteParser.h"
 
+// audio out using MCP4822 DAC (12bit)
 MCP4822 g_MCP(SPI_MOSI, SPI_SCK, SPI_CS);    // MOSI, SCLK, nCS
 
+// serial port for (debug) info
 Serial g_Serial(USBTX, USBRX); // tx, rx
 
+// Midi input : serial port + buffer
 Serial g_MidiInSerial(D8, D2);//serial 1
-
 static const int RecieveBufferSize = 128;
 CSerialBuffer<int, RecieveBufferSize> g_SerialBuffer;
 
@@ -21,11 +23,27 @@ void OnRecieve()
     g_SerialBuffer.Write(g_MidiInSerial.getc());
 }
 
+// interrupts
+static const int InterruptBufferSize = 16;
+CSerialBuffer<int, InterruptBufferSize> g_InterruptBuffer;
+
+template<int N>
+void OnInterrupt()
+{
+    g_InterruptBuffer.Write(N);
+}
+
 int main()
 {
     g_Serial.printf("SimpleSynth... \r\n \r\n");
 
-//    DigitalIn Button1(D8);
+    InterruptIn Trigger1(D4);
+    Trigger1.mode(PullUp);
+    InterruptIn Trigger2(D5);
+    Trigger2.mode(PullUp);
+    //InterruptIn Trigger3(D6);
+    //InterruptIn Trigger4(D7);
+
 
     CRawMidiParser MidiParser;
 
@@ -51,6 +69,12 @@ int main()
     Controller.Start();
     g_MidiInSerial.attach(&OnRecieve);
 
+    Trigger1.rise(&OnInterrupt<1>);
+    Trigger2.rise(&OnInterrupt<2>);
+    //Trigger3.rise(&OnInterrupt<3>);
+    //Trigger4.rise(&OnInterrupt<4>);
+
+
     while(1)
     {
         int Available = g_SerialBuffer.Available();
@@ -62,7 +86,21 @@ int main()
                 MidiParser.Parse(RawMidiByte, Controller);
             }
 
-            //printf("Serial %d \r\n", Available);
+            //printf("Serial Midi in %d \r\n", Available);
+        }
+
+        int AvailableInterrupts = g_InterruptBuffer.Available();
+        if(0<AvailableInterrupts)
+        {
+            for(int idx = 0; idx<AvailableInterrupts; ++idx)
+            {
+                int Interrupt = g_InterruptBuffer.Read();
+                if(0==g_InterruptBuffer.NumOverWrites())
+                {
+                    Controller.OnInterrupt(Interrupt);
+                    //std::printf("Interrupt %d \r\n", Interrupt);
+                }
+            }
         }
 
         wait_ms(1);//necessary???
