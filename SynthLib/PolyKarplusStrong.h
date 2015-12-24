@@ -79,7 +79,7 @@ public:
         m_SamplingFrequencyHz = SamplingFrequencyHz;
     }
 
-    void Excite(int Operator, T Excitation, T Frequency, T Damp, T AttackMilliSeconds)
+    void Excite(int Operator, T Excitation, T Frequency, T Damp, T AttackMilliSeconds, T Pan)
     {
         if(0<=Operator && Operator<NumOperators)
         {
@@ -88,6 +88,9 @@ public:
             if(Period<Capacity)
             {
                 T AttackSamples = CConstNumSamplesGenerator<float>(m_SamplingFrequencyHz).SetMilliSeconds(AttackMilliSeconds);
+
+                m_Operator[Operator].m_GainLeft = std::min(T(1), 1-Pan);
+                m_Operator[Operator].m_GainRight = std::min(T(1), 1+Pan);
 
                 m_Operator[Operator].ExciteOperator(Damp, Period, AttackSamples);
             }
@@ -107,6 +110,20 @@ public:
         return Out;//no normalisation
     }
 
+    void operator()(T& Left, T& Right)
+    {
+        Left = 0;
+        Right = 0;
+
+        T Excite = m_ExciterLPF(m_ExciterLPF(m_ExciterLPF(m_ExciterLPF(m_ExciterNoise()))));
+
+        for(int idx = 0; idx<NumOperators; ++idx)
+        {
+            T Out = m_Operator[idx](Excite);
+            Left += m_Operator[idx].m_GainLeft*Out;
+            Right += m_Operator[idx].m_GainRight*Out;
+        }
+    }
 
 private:
     struct SOperator
@@ -118,6 +135,8 @@ private:
             , m_DampLPF()
             , m_DCOffset(0, T(1)/2048)
             , m_Envelope()
+            , m_GainLeft(1)
+            , m_GainRight(1)
         {}
 
         void ExciteOperator(T Damp, int Period, T AttackSamples)
@@ -148,6 +167,8 @@ private:
         COnePoleLowPassFilter<T> m_DampLPF;
         synthlib::CDeltaSmooth<T> m_DCOffset;
         CAREnvelope<T> m_Envelope;
+        T m_GainLeft;
+        T m_GainRight;
     };
 
     //const T m_MinFrequency;

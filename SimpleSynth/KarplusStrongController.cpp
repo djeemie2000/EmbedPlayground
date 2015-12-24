@@ -9,7 +9,8 @@ CKarplusStrongController::CKarplusStrongController(mbed::Serial &SerialComm, MCP
  , m_Damp(0.9f)
  , m_Excitation(0.7f)
  , m_AttackMilliSeconds(1.0f)
- , m_FrequencyL(110.0f)
+ , m_Frequency(110.0f)
+ , m_Pan(0.0f)
  , m_Gate(false)
  , m_KarplusStrong()
  , m_OperatorSelector()
@@ -22,7 +23,8 @@ void CKarplusStrongController::Init()
     m_Damp = 0.9f;
     m_Excitation = 0.65f;
     m_AttackMilliSeconds = 1.0f;
-    m_FrequencyL = GetMidiNoteFrequencyMilliHz(40)/1000.0f;
+    m_Frequency = GetMidiNoteFrequencyMilliHz(40)/1000.0f;
+    m_Pan = 0.0f;
     m_Gate = false;
     m_SaturationShaper.SetLUT(isl::LUT_SaturationTanH_4096, 4096);
 }
@@ -55,10 +57,13 @@ void CKarplusStrongController::Stop()
 
 void CKarplusStrongController::Tick()
 {
-    float Out = m_KarplusStrong();
-    int OutValue = 2048 + m_SaturationShaper(2048*Out); //ConvertandClamp(Out);
+    float OutL = 0.0f;
+    float OutR = 0.0f;
+    m_KarplusStrong(OutL, OutR);
+    int OutLValue = 2048 + m_SaturationShaper(2048*OutL);
+    int OutRValue = 2048 + m_SaturationShaper(2048*OutR);
 
-    m_Mcp4822.writeAB(OutValue, OutValue);
+    m_Mcp4822.writeAB(OutLValue, OutRValue);
 }
 
 void CKarplusStrongController::Process(int Value1, int Value2, int Value3, int Value4)
@@ -67,19 +72,20 @@ void CKarplusStrongController::Process(int Value1, int Value2, int Value3, int V
 
     int MidiNote = Value2+64;
     float Freq = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
-    m_FrequencyL = Freq;
+    m_Frequency = Freq;
 
     m_Excitation = (Value3+128)/256.0f;
 
-    if(!m_Gate && 0<Value4)
+    bool Gate = 0<Value4;
+    if(!m_Gate && Gate)
     {
         int SelectedOperator = m_OperatorSelector.Select();
-        m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_FrequencyL, m_Damp, m_AttackMilliSeconds);
+        m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_Frequency, m_Damp, m_AttackMilliSeconds, m_Pan);
 
         m_SerialComm.printf("Operator %d : MidiNote %d\r\n", 1+SelectedOperator, MidiNote);
     }
-    m_Gate = 0<Value4;
-    m_SerialComm.printf("Freq %f Damp %f Exci %f \r\n", m_FrequencyL, m_Damp, m_Excitation);
+    m_Gate = Gate;
+    m_SerialComm.printf("Freq %f Damp %f Exci %f \r\n", m_Frequency, m_Damp, m_Excitation);
 }
 
 void CKarplusStrongController::OnNoteOff(int /*Note*/, int /*Velocity*/, int /*Channel*/)
@@ -90,16 +96,16 @@ void CKarplusStrongController::OnNoteOff(int /*Note*/, int /*Velocity*/, int /*C
 void CKarplusStrongController::OnNoteOn(int Note, int /*Velocity*/, int /*Channel*/)
 {
     int MidiNote = Note;
-    m_FrequencyL = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
+    m_Frequency = GetMidiNoteFrequencyMilliHz(MidiNote)/1000.0f;
 
     // ??
     // use velocity for excitation?
     // use average of param + velocity?
 
     int SelectedOperator = m_OperatorSelector.Select();
-    m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_FrequencyL, m_Damp, m_AttackMilliSeconds);
+    m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_Frequency, m_Damp, m_AttackMilliSeconds, m_Pan);
 
-    m_SerialComm.printf("Operator %d : MidiNote %d Freq %f \r\n", 1+SelectedOperator, MidiNote, m_FrequencyL);
+    m_SerialComm.printf("Operator %d : MidiNote %d Freq %f \r\n", 1+SelectedOperator, MidiNote, m_Frequency);
 }
 
 void CKarplusStrongController::OnControlChange(int Controller, int Value, int Channel)
@@ -118,6 +124,10 @@ void CKarplusStrongController::OnControlChange(int Controller, int Value, int Ch
         // 0 to ~1600
         m_AttackMilliSeconds = Value*Value/10.0f;
     }
+    else if(Controller==20)
+    {
+        m_Pan = (Value-64)/128.0f;
+    }
     else
     {
         Handled = false;
@@ -133,16 +143,16 @@ void CKarplusStrongController::OnInterrupt(int Interrupt)
     if(Interrupt==1)
     {
         int SelectedOperator = m_OperatorSelector.Select();
-        m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_FrequencyL, m_Damp, m_AttackMilliSeconds);
+        m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_Frequency, m_Damp, m_AttackMilliSeconds, m_Pan);
 
-        m_SerialComm.printf("Operator %d : MidiNote ? Freq %f \r\n", 1+SelectedOperator, m_FrequencyL);
+        m_SerialComm.printf("Operator %d : MidiNote ? Freq %f \r\n", 1+SelectedOperator, m_Frequency);
     }
     else if(Interrupt==2)
     {
         int SelectedOperator = m_OperatorSelector.Select();
-        m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_FrequencyL*2, m_Damp, m_AttackMilliSeconds);
+        m_KarplusStrong.Excite(SelectedOperator, m_Excitation, m_Frequency*2, m_Damp, m_AttackMilliSeconds, m_Pan);
 
-        m_SerialComm.printf("Operator %d : MidiNote ? Freq %f \r\n", 1+SelectedOperator, m_FrequencyL*2);
+        m_SerialComm.printf("Operator %d : MidiNote ? Freq %f \r\n", 1+SelectedOperator, m_Frequency*2);
     }
 }
 

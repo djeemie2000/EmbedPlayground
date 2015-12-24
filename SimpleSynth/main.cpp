@@ -38,12 +38,12 @@ int main()
     g_Serial.printf("SimpleSynth... \r\n \r\n");
 
     InterruptIn Trigger1(D4);
-    Trigger1.mode(PullUp);
+    //Trigger1.mode(PullDown);
     InterruptIn Trigger2(D5);
-    Trigger2.mode(PullUp);
+    //Trigger2.mode(PullDown);
     //InterruptIn Trigger3(D6);
+    //Trigger3.mode(PullDown);
     //InterruptIn Trigger4(D7);
-
 
     CRawMidiParser MidiParser;
 
