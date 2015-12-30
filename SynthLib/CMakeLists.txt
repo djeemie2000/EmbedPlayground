@@ -21,6 +21,7 @@ add_library(SynthLib
     PolyKarplusStrong.h
     AREnvelope.h
     ConstNumSamplesGenerator.h
+    FourPoleFilter.h
     Dummy.cpp
 )
 

@@ -2,7 +2,7 @@
 
 #include "Noise.h"
 #include "DelayLine2.h"
-#include "OnePoleFilter.h"
+#include "FourPoleFilter.h"
 #include "DeltaSmooth.h"
 #include "AREnvelope.h"
 #include "ConstNumSamplesGenerator.h"
@@ -115,7 +115,7 @@ public:
         Left = 0;
         Right = 0;
 
-        T Excite = m_ExciterLPF(m_ExciterLPF(m_ExciterLPF(m_ExciterLPF(m_ExciterNoise()))));
+        T Excite = m_ExciterLPF(m_ExciterNoise());
 
         for(int idx = 0; idx<NumOperators; ++idx)
         {
@@ -151,7 +151,7 @@ private:
 
         T operator()(T Excite)
         {
-            T WriteValue = 0<m_Cntr ? Excite : m_DampLPF(m_DampLPF(m_DampLPF(m_DampLPF(m_DelayLine.Read(m_Period)))));
+            T WriteValue = 0<m_Cntr ? Excite : m_DampLPF(m_DelayLine.Read(m_Period));
             m_DelayLine.Write(WriteValue);
             if(m_Cntr)
             {
@@ -164,7 +164,7 @@ private:
         int m_Period;
         int m_Cntr;
         CDelayLine2<T, Capacity> m_DelayLine;//used as circular buffer
-        COnePoleLowPassFilter<T> m_DampLPF;
+        CFourPoleLowPassFilter<T> m_DampLPF;
         synthlib::CDeltaSmooth<T> m_DCOffset;
         CAREnvelope<T> m_Envelope;
         T m_GainLeft;
@@ -175,7 +175,7 @@ private:
     std::uint64_t m_SamplingFrequencyHz;
 
     CNoise<T> m_ExciterNoise;
-    COnePoleLowPassFilter<T> m_ExciterLPF;
+    CFourPoleLowPassFilter<T> m_ExciterLPF;
 
     SOperator m_Operator[NumOperators];
 };
