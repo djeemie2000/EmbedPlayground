@@ -24,10 +24,10 @@ void SawOut(float Frequency, float PulseWidth)
     pc.printf("Fs=%f F=%f Incr=%f\r\n", SamplingFrequency, Frequency, PhaseIncr);
 
     float Phase = 0;
-    for(int Repeat = 0; Repeat<SamplingFrequency; ++Repeat)
+    for(int Repeat = 0; Repeat<SamplingFrequency/20; ++Repeat)
     {
-        //float Out = Phase<PulseWidth?1:0;
-        float Out = Phase;
+        float Out = Phase<PulseWidth?1:0;
+        //float Out = Phase;
         myAnOut.write(Out);
 
         Phase += PhaseIncr;
@@ -53,10 +53,16 @@ int main()
     while(true)
     {
         SawOut(Frequency, PulseWidth);
-        PulseWidth+=0.1f;
+        PulseWidth+=0.09f;
         if(1<PulseWidth)
         {
             PulseWidth = 0.1f;
+        }
+
+        Frequency = Frequency*1.325f + 11.34f;
+        if(Frequency > 1520.0f)
+        {
+            Frequency /= 14.162f;
         }
         //wait(1.0f);
     }
