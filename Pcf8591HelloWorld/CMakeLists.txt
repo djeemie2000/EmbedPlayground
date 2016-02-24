@@ -9,7 +9,7 @@ set(CMAKE_TOOLCHAIN_FILE ../mbed-cmake/arm_toolchain.cmake)
 
 cmake_minimum_required(VERSION 2.8.1)
 
-project (SimpleSynth C CXX ASM)
+project (Pcf8591HelloWorld C CXX ASM)
 
 # ------------------------------------------------------------------------------
 # set the target processor and include settings for cmake
@@ -17,7 +17,8 @@ project (SimpleSynth C CXX ASM)
 #set(MBED_TARGET LPC1768)
 #set(MBED_TARGET LPC11U24)
 #set(MBED_TARGET RBLAB_NRF51822)
-set(MBED_TARGET NUCLEO_F411RE)
+#set(MBED_TARGET NUCLEO_F411RE)
+set(MBED_TARGET NUCLEO_F446RE)
 
 # ------------------------------------------------------------------------------
 # will add the include dirs and link the lib
@@ -28,54 +29,35 @@ set(USE_DSP true)
 
 # ------------------------------------------------------------------------------
 # for installing an serial console
-set(MBEDMOUNT /media/pj/NODE_F411RE)
+set(MBEDMOUNT /media/pj/NODE_F446RE)
 set(SERCON /dev/ttyACM0)
 
 
 # ------------------------------------------------------------------------------
 # build the executable
-set(BLINKLED_SRC
+set(APPLICATION_SRC
   main.cpp
-  MidiNoteFrequencies.cpp
-  MidiNoteFrequencies.h
-  SimpleOscillatorController.cpp
-  SimpleOscillatorController.h
-  CombNoiseController.cpp
-  CombNoiseController.h
-  IntSimpleOscillatorController.cpp
-  IntSimpleOscillatorController.h
-  KarplusStrongController.cpp
-  KarplusStrongController.h
-
 )
 
 set(BIN
-  SimpleSynth
+  Pcf8591HelloWorld
 )
 
 include(../mbed-cmake/arm_mbed.cmake)
 
-# ------------------------------------------------------------------------------
-# build the executable
-
-include_directories(./../Peripherals ./../SynthLib ./../IntSynthLib ./../Utilities ./../RotaryEncoder ./../MidiLib)
+include_directories(./../Peripherals)
 
 add_subdirectory(../Peripherals Peripherals)
-add_subdirectory(../SynthLib SynthLib)
-add_subdirectory(../IntSynthLib IntSynthLib)
-add_subdirectory(../Utilities Utilities)
-add_subdirectory(../RotaryEncoder RotaryEncoder)
-add_subdirectory(../MidiLib MidiLib)
 
 
+# ------------------------------------------------------------------------------
+# build the executable
 add_executable(${BIN}
-                ${BLINKLED_SRC}
+                ${APPLICATION_SRC}
                 ${MBED_OBJECTS}
                 ${MBED_HEADERS}
 )
 
 target_link_libraries(${BIN}
-                        RotaryEncoder
                         Peripherals
                         ${MBED_LIBS})
-

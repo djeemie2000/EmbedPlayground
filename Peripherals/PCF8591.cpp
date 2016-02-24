@@ -241,25 +241,19 @@ PCF8591_AnalogIn::PCF8591_AnalogIn(I2C *i2c, uint8_t channel, uint8_t deviceAddr
   *
   * @return analogIn value (0 .. 1.0)
   */  
-float PCF8591_AnalogIn::read() {
-  uint8_t data[6];
-    
-  data[0] = _mode;             // Init Control Reg
-  
-  // write data to the device to select the ADC channel
-  _i2c->start();  
-  _i2c->write(_slaveAddress);        // Slave write address 
-  _i2c->write(data[0]);  
-  _i2c->stop();  
-   
-  // read selected ADC channel
-  // note that first byte is a 'dummy' and should be ignored
-  _i2c->start();  
-  _i2c->write(_slaveAddress | 0x01); // Slave read address 
-  data[0]=_i2c->read(1);  //ack
-  data[1]=_i2c->read(0);  //nack  
-  _i2c->stop();  
-  
+float PCF8591_AnalogIn::read()
+{
+    uint8_t data[6] = {123,123,123,123,123,123}; //test to check failed read
+
+    data[0] = _mode;             // Init Control Reg
+
+    // write data to the device to select the ADC channel
+    _i2c->write(_slaveAddress, (char*) data, 1);
+
+    // read selected ADC channel
+    // note that first byte is a 'dummy' and should be ignored
+    _i2c->read(_slaveAddress, (char*) data, 2);
+
  
   // ADC Channel
   return ((float) data[1] / 255.0);       
