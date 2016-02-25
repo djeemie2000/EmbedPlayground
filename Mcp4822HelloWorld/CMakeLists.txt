@@ -47,9 +47,9 @@ include(../mbed-cmake/arm_mbed.cmake)
 # ------------------------------------------------------------------------------
 # build the executable
 
-include_directories(./../MCP4822)
+include_directories(./../Peripherals)
 
-add_subdirectory(../MCP4822 MCP4822)
+add_subdirectory(../Peripherals Peripherals)
 
 add_executable(${BIN}
                 ${BLINKLED_SRC}
@@ -58,5 +58,5 @@ add_executable(${BIN}
 )
 
 target_link_libraries(${BIN}
-                        MCP4822
+                        Peripherals
                         ${MBED_LIBS})
