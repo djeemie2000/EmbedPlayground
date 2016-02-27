@@ -12,6 +12,7 @@ add_library(Utilities
     RotaryValue.h
     AnalogInManager.h
     SerialBuffer.h
+    AnalogOutBuffer.h
     Dummy.cpp
 )
 

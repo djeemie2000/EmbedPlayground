@@ -3,7 +3,7 @@
  */
 
 #include "mbed.h"
-#include "SerialBuffer.h"
+#include "AnalogOutBuffer.h"
 
 DigitalOut myled(LED1);
 Serial pc(USBTX, USBRX);
@@ -45,58 +45,6 @@ void SawOut(float Frequency, float PulseWidth)
     pc.printf("Elapsed %d uSec \r\n", t.read_us());
 }
 
-template<int BufferSize>
-class CAnalogOutBuffer
-{
-public:
-    CAnalogOutBuffer(PinName AnalogOutPin)
-     : m_Buffer()
-     , m_Ticker()
-     , m_AnalogOut(AnalogOutPin)
-     , m_UnderRuns(0)
-    {}
-
-    void Start(int SamplingFrequency)
-    {
-        timestamp_t PeriodMicroSeconds = 1000000.0f/SamplingFrequency;
-        m_Ticker.attach_us(this, &CAnalogOutBuffer<BufferSize>::OnTick, PeriodMicroSeconds);
-    }
-
-    void Stop()
-    {
-        m_Ticker.detach();
-    }
-
-    void OnTick()
-    {
-        if(0<m_Buffer.Available())
-        {
-            int Value = m_Buffer.Read();
-            // no cropping here?
-            m_AnalogOut.write_u16(Value);
-        }
-        else
-        {
-            ++m_UnderRuns;
-        }
-    }
-
-    CSerialBuffer<int, BufferSize>& GetBuffer()
-    {
-        return m_Buffer;
-    }
-
-    int GetUnderRuns() const
-    {
-        return m_UnderRuns;
-    }
-
-private:
-    CSerialBuffer<int, BufferSize> m_Buffer;
-    Ticker m_Ticker;
-    AnalogOut m_AnalogOut;
-    int m_UnderRuns;
-};
 
 static const int g_SamplingFrequency = 44100;//?
 static const int g_AnalogOutBufferSize = g_SamplingFrequency/10;
@@ -137,7 +85,7 @@ void TestBuffer()
         ++Repeat;
         if(Repeat%24==0)
         {
-            pc.printf("Write to buffer %d underruns %d \r\n", Repeat, g_AnalogOutBuffer.GetUnderRuns());
+            pc.printf("Write to buffer %d underruns %d \r\n", Repeat, g_AnalogOutBuffer.GetOverRuns());
         }
     }
 }

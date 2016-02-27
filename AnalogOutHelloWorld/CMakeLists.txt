@@ -36,7 +36,7 @@ set(SERCON /dev/ttyACM0)
 
 # ------------------------------------------------------------------------------
 # build the executable
-set(BLINKLED_SRC
+set(BLINKLED_SRC  
   main.cpp
 )
 
