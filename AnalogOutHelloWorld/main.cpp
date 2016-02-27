@@ -46,7 +46,7 @@ void SawOut(float Frequency, float PulseWidth)
 }
 
 
-static const int g_SamplingFrequency = 44100;//?
+static const int g_SamplingFrequency = 96000;//44100;//?
 static const int g_AnalogOutBufferSize = g_SamplingFrequency/10;
 CAnalogOutBuffer<g_AnalogOutBufferSize> g_AnalogOutBuffer(D13);
 

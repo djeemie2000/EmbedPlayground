@@ -42,13 +42,11 @@ void TestAdc(int /*Resolution*/)
     mySerial.printf("Done \r\n");
 }
 
-int main()
+void TestAnalogInManager()
 {
-    mySerial.printf("Utilities HelloWorld \r\n \r\n");
-
     const int Resolution = 8;
     CAnalogInManager<Resolution> Manager;
-    bool Enabled[CAnalogInManager<Resolution>::Size] = {false, true, true, false, false, false};
+    bool Enabled[CAnalogInManager<Resolution>::Size] = {true, true, true, true, false, false};
     int AverageSize = 8;
     Manager.Begin(Enabled, AverageSize);
 
@@ -71,5 +69,53 @@ int main()
 
         wait_us(100);
     }
+}
 
+void TestDigitalIn()
+{
+    DigitalIn GateIn(D7, PullUp);
+    int PrevGate = 0;
+    while(true)
+    {
+        int Gate = GateIn;
+        if(Gate!=PrevGate)
+        {
+            mySerial.printf("Gate changed to %d \r\n", Gate);
+            PrevGate  = Gate;
+        }
+//        wait_ms(1);
+    }
+}
+
+void TestAnalogIn()
+{
+    mySerial.printf("CV pitch (1V/oct) input test using pin %d \r\n", A5);
+
+    //const int AdcResolution = 16;
+    AnalogIn AIn1(A5);
+
+    while(true)
+    {
+        int Value = AIn1.read_u16();
+        const float ReferenceVoltage = 5.0f;//3.3f;
+        const int Resolution = 1<<16;
+        float Voltage = Value*ReferenceVoltage/Resolution;
+        int MidiNote = 12*Voltage + 0.5f;
+        mySerial.printf("%d = %f V wrt %f -> Note %d \r\n", Value, Voltage, ReferenceVoltage, MidiNote);
+        wait_ms(500);
+    }
+}
+
+int main()
+{
+    mySerial.printf("Utilities HelloWorld \r\n \r\n");
+
+    TestAdc(12345);
+    wait(2.0f);
+
+    //TestAnalogIn();
+
+    TestDigitalIn();
+
+    TestAnalogInManager();
 }
