@@ -60,6 +60,7 @@ void CKarplusStrongController::Tick()
     float OutL = 0.0f;
     float OutR = 0.0f;
     m_KarplusStrong(OutL, OutR);
+
     int OutLValue = 2048 + m_SaturationShaper(2048*OutL);
     int OutRValue = 2048 + m_SaturationShaper(2048*OutR);
 

@@ -10,9 +10,15 @@ public:
         , m_ReadCounter(0)
     {}
 
+    // number available for read
     int Available() const
     {
         return m_WriteCounter - m_ReadCounter;
+    }
+
+    int AvailableForWrite()
+    {
+        return BufferSize - (m_WriteCounter-m_ReadCounter);
     }
 
     T Read()
@@ -37,6 +43,13 @@ public:
     {
         int Num = m_WriteCounter-m_ReadCounter-BufferSize;
         return 0<Num ? Num : 0;
+    }
+
+    // number available for write
+    int NumUnderWrites()
+    {
+        int Num = m_WriteCounter-m_ReadCounter-BufferSize;
+        return Num<0 ? -Num : 0;
     }
 
 private:

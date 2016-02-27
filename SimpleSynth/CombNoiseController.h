@@ -2,7 +2,7 @@
 
 #include "mbed.h"
 #include "Noise.h"
-#include "OnePoleFilter.h"
+#include "FourPoleFilter.h"
 #include "CombFilter.h"
 #include "MCP4822.h"
 
@@ -32,7 +32,7 @@ private:
     Ticker m_Ticker;
 
     CNoise<float> m_Exciter;
-    COnePoleLowPassFilter<float> m_LPF;
+    CFourPoleLowPassFilter<float> m_LPF;
     float m_Feedback;
     float m_FrequencyL;
     float m_FrequencyR;

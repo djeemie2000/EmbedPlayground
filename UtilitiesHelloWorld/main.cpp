@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "dsp.h"
 #include "StablePot.h"
 #include "AnalogInManager.h"
 
@@ -30,8 +31,13 @@ void TestAdc(int /*Resolution*/)
         //Deviation += std::abs(Value-Average);
         Deviation += (Value-Average)*(Value-Average);
     }
-    float NormalizedDeviation = Deviation/float(NumSamples);
-    mySerial.printf("Adc deviation = %f \r\n", NormalizedDeviation);
+    float Variation = Deviation/float(NumSamples);
+    mySerial.printf("Adc variation = %f \r\n", Variation);
+
+    float StandardDeviation = 0;
+    arm_sqrt_f32(Variation, &StandardDeviation);
+    mySerial.printf("Adc std dev = %f \r\n", StandardDeviation);
+
 
     mySerial.printf("Done \r\n");
 }
