@@ -46,6 +46,10 @@ set(BIN
 
 include(../mbed-cmake/arm_mbed.cmake)
 
+include_directories(./../Utilities)
+
+add_subdirectory(../Utilities Utilities)
+
 # ------------------------------------------------------------------------------
 # build the executable
 add_executable(${BIN}
@@ -55,4 +59,5 @@ add_executable(${BIN}
 )
 
 target_link_libraries(${BIN}
+                        Utilities
                         ${MBED_LIBS})
