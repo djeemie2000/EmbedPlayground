@@ -13,6 +13,7 @@ add_library(Utilities
     AnalogInManager.h
     SerialBuffer.h
     AnalogOutBuffer.h
+    InterruptInManager.h
     Dummy.cpp
 )
 

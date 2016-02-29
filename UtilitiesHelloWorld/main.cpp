@@ -2,6 +2,7 @@
 #include "dsp.h"
 #include "StablePot.h"
 #include "AnalogInManager.h"
+#include "InterruptInManager.h"
 
 Serial mySerial(USBTX, USBRX); // tx, rx
 
@@ -89,56 +90,21 @@ void TestDigitalIn()
     }
 }
 
-class CInterruptHandler
-{
-public:
-    CInterruptHandler()
-        : m_Counter(0)
-        , m_Interrupt(false)
-    {}
-
-    void OnInterrupt()
-    {
-        ++m_Counter;
-        m_Interrupt = true;
-    }
-
-    bool Get() const
-    {
-        return m_Interrupt;
-    }
-
-    int Count() const
-    {
-        return m_Counter;
-    }
-
-    void Clear()
-    {
-        m_Interrupt = false;
-        m_Counter = 0;
-    }
-
-private:
-    int m_Counter;
-    bool m_Interrupt;
-};
-
 void TestTriggerIn()
 {
     mySerial.printf("Test trigger in...\r\n");
 
-    CInterruptHandler Handler;
-    InterruptIn TriggerIn(D7);
-    TriggerIn.rise(&Handler, &CInterruptHandler::OnInterrupt);
+    CInterruptInManager Handler(D7);
+    Handler.Start();
 
     while(true)
     {
-        if(Handler.Get())
+        int RiseCount = Handler.RiseCount();
+        int FallCount = Handler.FallCount();
+        if(0<RiseCount || 0<FallCount)
         {
             // this is where we should sample the CV pitch?
-            int Count = Handler.Count();
-            mySerial.printf("Triggered %d \r\n", Count);
+            mySerial.printf("Triggered rise %d fall %d \r\n", RiseCount, FallCount);
             Handler.Clear();
         }
         wait_ms(10);//medium wait
