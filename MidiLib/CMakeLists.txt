@@ -10,6 +10,8 @@ ADD_DEFINITIONS(
 add_library(MidiLib
     RawMidiByteParser.h
     LogMidiHandler.h
+    MidiNoteFrequencies.cpp
+    MidiNoteFrequencies.h
     Dummy.cpp
 )
 
