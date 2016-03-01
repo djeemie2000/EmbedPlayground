@@ -7,6 +7,7 @@ public:
     CPhaseStep(const T& SamplingFrequency)
         : m_SamplingFrequency(SamplingFrequency)
         , m_PhaseStep(0)
+        , m_TwoDivSamplingFrequency(2/SamplingFrequency)
     {}
 
     CPhaseStep()
@@ -27,10 +28,12 @@ public:
 
     T operator()(T Frequency)
     {
-        return 2*Frequency/m_SamplingFrequency;
+        //return 2*Frequency/m_SamplingFrequency;
+        return m_TwoDivSamplingFrequency*Frequency;
     }
 
 private:
     T m_SamplingFrequency;
     T m_PhaseStep;
+    const T m_TwoDivSamplingFrequency;
 };
