@@ -7,55 +7,12 @@
 #include "InterruptInManager.h"
 #include "MidiNoteFrequencies.h"
 
-#include "PhaseStep.h"
-#include "PhaseAccumulator.h"
-#include "Pulse.h"
+#include "Oscillator.h"
 
 DigitalOut myled(LED1);
 Serial pc(USBTX, USBRX);
 
 //AnalogOut myAnOut(A2);// A2 or D13
-
-template<class T>
-class COscillator
-{
-public:
-    COscillator(T SamplingFrequency)
-     : m_PhaseStepA(SamplingFrequency)
-     , m_PhaseAccumulatorA()
-     , m_DetuneA(1.01f)
-     , m_PhaseStepB(SamplingFrequency)
-     , m_PhaseAccumulatorB()
-     , m_DetuneB(1/m_DetuneA)
-     , m_PhaseStepSub(SamplingFrequency)
-     , m_PhaseAccumulatorSub()
-     , m_DetuneSub(0.5f)
-     , m_OscillatorSub()
-    {}
-
-    int operator()(T FrequencyHz)//TODO amplitude/gate
-    {
-        T Value = m_PhaseAccumulatorA(m_PhaseStepA(FrequencyHz*m_DetuneA))
-                + m_PhaseAccumulatorB(m_PhaseStepB(FrequencyHz*m_DetuneB))
-                + m_OscillatorSub(m_PhaseAccumulatorSub(m_PhaseStepSub(FrequencyHz*m_DetuneSub)));
-
-        return (1<<15)*(1+0.33f*Value);
-    }
-
-private:
-    CPhaseStep<T> m_PhaseStepA;
-    CPhaseAccumulator<T> m_PhaseAccumulatorA;
-    T m_DetuneA;
-
-    CPhaseStep<T> m_PhaseStepB;
-    CPhaseAccumulator<T> m_PhaseAccumulatorB;
-    T m_DetuneB;
-
-    CPhaseStep<T> m_PhaseStepSub;
-    CPhaseAccumulator<T> m_PhaseAccumulatorSub;
-    const T m_DetuneSub;
-    CPulsePos<T> m_OscillatorSub;
-};
 
 void TestOscillatorTimings()
 {
@@ -137,14 +94,10 @@ struct SController
 
     void ReadControls()
     {
-        //TODO triggers CV pitch
+        // triggers CV pitch
         m_Amplitude = m_Trigger.Read();
-        //if(0<m_Trigger.RiseCount())
-        //{
-        //    m_Trigger.Clear();
-            //  sample pitch CV
-            SamplePitch();
-        //}
+        //  sample pitch CV
+        SamplePitch();
      }
 
      void SamplePitch()
