@@ -33,11 +33,12 @@ set(USE_DSP true)
 set(MBEDMOUNT /media/pj/NODE_F446RE)
 set(SERCON /dev/ttyACM0)
 
-
 # ------------------------------------------------------------------------------
 # build the executable
 set(BLINKLED_SRC  
   Oscillator.h
+  RenderManager.h
+  AnalogOutRenderer.h
   main.cpp
 )
 

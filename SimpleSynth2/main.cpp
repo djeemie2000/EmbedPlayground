@@ -8,11 +8,13 @@
 #include "MidiNoteFrequencies.h"
 
 #include "Oscillator.h"
+#include "AnalogOutRenderer.h"
+#include "RenderManager.h"
 
 DigitalOut myled(LED1);
 Serial pc(USBTX, USBRX);
 
-//AnalogOut myAnOut(A2);// A2 or D13
+// F446RE AnalogOut: A2 or D13
 
 void TestOscillatorTimings()
 {
@@ -34,13 +36,10 @@ void TestOscillatorTimings()
     pc.printf("%d samples %d mSec (%f)\r\n", SamplingFrequency, Elapsed, UseValue);
 }
 
+
 struct SController
 {
-
     static const int SamplingFrequency = 96000;//44100;//?
-    static const int AnalogOutBufferSize = SamplingFrequency/10;
-
-    CAnalogOutBuffer<AnalogOutBufferSize> m_AnalogOutBuffer;
 
     CInterruptInManager m_Trigger;
     int m_Amplitude;
@@ -50,46 +49,37 @@ struct SController
     float m_PitchCV;
 
     COscillator<float> m_Oscillator;
+    CAnalogOutRenderer<int> m_Renderer;
+
+    CRenderManager<SController, CAnalogOutRenderer<int>> m_RenderManager;
 
     SController()
-     : m_AnalogOutBuffer(D13)
-     , m_Trigger(D7)
+     : m_Trigger(D7)
      , m_Amplitude(0)
      , m_FrequencyHz(110.0f)
      , m_PitchCVIn(A4)
      , m_PitchCV(0)
      , m_Oscillator(SamplingFrequency)
+     , m_Renderer(D13)
+     , m_RenderManager()
     {
-
     }
 
     void Start()
     {
-        m_AnalogOutBuffer.Start(SamplingFrequency);
+        m_RenderManager.Start(SamplingFrequency, this, &m_Renderer);
         m_FrequencyHz = 110.0f;
         m_Trigger.Start();
     }
 
-    void WriteToBuffer()
+    int Render()
     {
-        static const int WriteBlockSize = 256;
-        auto& Buffer = m_AnalogOutBuffer.GetBuffer();
-        int NumAvailable = Buffer.AvailableForWrite();
-        if(WriteBlockSize<=NumAvailable)
+        int OutValue = m_Oscillator(m_FrequencyHz);
+        if(!m_Amplitude)
         {
-            // write 512 samples
-            for(int idx = 0; idx<WriteBlockSize; ++idx)
-            {
-                //float Tmp = m_Amplitude * m_Phasor(m_PhaseStep(m_FrequencyHz));
-                //int OutValue = (1<<15)*(1 + Tmp);
-                int OutValue = m_Oscillator(m_FrequencyHz);
-                if(!m_Amplitude)
-                {
-                    OutValue = 1<<15;
-                }
-                Buffer.Write(OutValue);
-            }
+            OutValue = 1<<15;
         }
+        return OutValue;
     }
 
     void ReadControls()
@@ -112,9 +102,7 @@ struct SController
          int MidiNote = Voltage*12 + 0.5f;
 
          float Freq = GetMidiNoteFrequencyMilliHz(MidiNote+24)/1000.0f;//starts with C1?
-
          m_FrequencyHz = Freq;
-
          //pc.printf("%f = %f V  -> Note %d %f Hz \r\n", Value, Voltage, MidiNote, Freq);
      }
 };
@@ -122,34 +110,31 @@ struct SController
 
 int main()
 {
-    pc.printf("SimpleSynth 2 !");
+    pc.printf("\r\n --- SimpleSynth 2 --- ");
 
-    // TODO timings on oscillator!
+    wait(1);
+
+    // test timings on oscillator!
     TestOscillatorTimings();
 
     SController Controller;
     // TODO some timings and tests on controller!
 
-    //
-    Controller.WriteToBuffer();
-    Controller.WriteToBuffer();
-    Controller.WriteToBuffer();
-    Controller.WriteToBuffer();
+    pc.printf("Start");
     Controller.Start();
 
     int Counter = 0;
     while(true)
     {
         Controller.ReadControls();
-        Controller.WriteToBuffer();
         ++Counter;
-        if(Counter % 1000 == 0)
+        if(Counter % (2*1000) == 0)
         {
             pc.printf("WriteToBuffer %d Freq=%f \r\n", Counter, Controller.m_FrequencyHz);
         }
         else
         {
-            wait_us(1000);
+            wait_ms(1);
         }
     }
 
