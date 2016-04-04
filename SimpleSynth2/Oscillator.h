@@ -22,7 +22,7 @@ public:
      , m_OscillatorSub()
     {}
 
-    int operator()(T FrequencyHz)//TODO amplitude/gate
+    int operator()(T FrequencyHz, T Amplitude)
     {
         T Value = m_PhaseAccumulatorA(m_PhaseStepA(FrequencyHz*m_DetuneA))
                 + m_PhaseAccumulatorB(m_PhaseStepB(FrequencyHz*m_DetuneB))

@@ -37,6 +37,7 @@ set(SERCON /dev/ttyACM0)
 # build the executable
 set(BLINKLED_SRC  
   Oscillator.h
+  OscillatorSource.h
   RenderManager.h
   AnalogOutRenderer.h
   main.cpp

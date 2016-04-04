@@ -1,65 +1,61 @@
-/*
- * This is the original mbed example
- */
 
 #include "mbed.h"
-#include "AnalogOutBuffer.h"
+
+// includes for libraries
 #include "InterruptInManager.h"
 #include "MidiNoteFrequencies.h"
 
+// includes for project specific stuff
 #include "Oscillator.h"
+#include "OscillatorSource.h"
 #include "AnalogOutRenderer.h"
 #include "RenderManager.h"
 
-DigitalOut myled(LED1);
-Serial pc(USBTX, USBRX);
+// global serial out
+Serial g_Serial(USBTX, USBRX);
 
 // F446RE AnalogOut: A2 or D13
 
 void TestOscillatorTimings()
 {
-    pc.printf("Test oscillator timings...\r\n");
+    g_Serial.printf("Test oscillator timings...\r\n");
 
     const int SamplingFrequency = 96000;
     COscillator<float> Oscillator(SamplingFrequency);
     float FrequencyHz = 110.0f;
+    float Amplitude = 1;
 
     Timer MyTimer;
     MyTimer.start();
     float UseValue =0;
     for(int Repeat = 0; Repeat<SamplingFrequency; ++Repeat)
     {
-        UseValue += Oscillator(FrequencyHz);
+        UseValue += Oscillator(FrequencyHz, Amplitude);
     }
     MyTimer.stop();
     int Elapsed = MyTimer.read_ms();
-    pc.printf("%d samples %d mSec (%f)\r\n", SamplingFrequency, Elapsed, UseValue);
+    g_Serial.printf("%d samples %d mSec (%f)\r\n", SamplingFrequency, Elapsed, UseValue);
 }
-
 
 struct SController
 {
     static const int SamplingFrequency = 96000;//44100;//?
 
     CInterruptInManager m_Trigger;
-    int m_Amplitude;
-    float m_FrequencyHz;
 
     AnalogIn m_PitchCVIn;
     float m_PitchCV;
 
-    COscillator<float> m_Oscillator;
+    COscillatorSource<float> m_OscillatorSource;
     CAnalogOutRenderer<int> m_Renderer;
 
-    CRenderManager<SController, CAnalogOutRenderer<int>> m_RenderManager;
+    CRenderManager<COscillatorSource<float>, CAnalogOutRenderer<int>> m_RenderManager;
 
     SController()
      : m_Trigger(D7)
-     , m_Amplitude(0)
-     , m_FrequencyHz(110.0f)
      , m_PitchCVIn(A4)
      , m_PitchCV(0)
-     , m_Oscillator(SamplingFrequency)
+     , m_OscillatorSource(SamplingFrequency)
      , m_Renderer(D13)
      , m_RenderManager()
     {
@@ -67,34 +63,25 @@ struct SController
 
     void Start()
     {
-        m_RenderManager.Start(SamplingFrequency, this, &m_Renderer);
-        m_FrequencyHz = 110.0f;
+        m_RenderManager.Start(SamplingFrequency, &m_OscillatorSource, &m_Renderer);
+        m_OscillatorSource.SetFrequencyHz(110.0f);
+        m_OscillatorSource.SetAmplitude(0);
         m_Trigger.Start();
-    }
-
-    int Render()
-    {
-        int OutValue = m_Oscillator(m_FrequencyHz);
-        if(!m_Amplitude)
-        {
-            OutValue = 1<<15;
-        }
-        return OutValue;
     }
 
     void ReadControls()
     {
         // triggers CV pitch
-        m_Amplitude = m_Trigger.Read();
+        m_OscillatorSource.SetAmplitude(m_Trigger.Read());
         //  sample pitch CV
         SamplePitch();
      }
 
      void SamplePitch()
      {
+         // TODO try a one pole LPF on Value???
          float Value = m_PitchCVIn.read();
          m_PitchCV = (15*m_PitchCV+Value)/16;
-         // TODO try a one pole LPF on Value???
 
          const float ReferenceVoltage = 3.3f;
          const float VoltageDivider = 2.07f;// 2.03f;//????
@@ -102,15 +89,15 @@ struct SController
          int MidiNote = Voltage*12 + 0.5f;
 
          float Freq = GetMidiNoteFrequencyMilliHz(MidiNote+36)/1000.0f;//starts with C1?
-         m_FrequencyHz = Freq;
-         //pc.printf("%f = %f V  -> Note %d %f Hz \r\n", Value, Voltage, MidiNote, Freq);
+         m_OscillatorSource.SetFrequencyHz(Freq);
+         //g_Serial.printf("%f = %f V  -> Note %d %f Hz \r\n", Value, Voltage, MidiNote, Freq);
      }
 };
 
 
 int main()
 {
-    pc.printf("\r\n --- SimpleSynth 2 --- ");
+    g_Serial.printf("\r\n --- SimpleSynth 2 --- ");
 
     wait(1);
 
@@ -120,7 +107,7 @@ int main()
     SController Controller;
     // TODO some timings and tests on controller!
 
-    pc.printf("Start...\r\n");
+    g_Serial.printf("Start...\r\n");
     Controller.Start();
 
     int Counter = 0;
@@ -130,7 +117,11 @@ int main()
         ++Counter;
         if(Counter % (2*1000) == 0)
         {
-            pc.printf("ReadControls %d : %f %d Freq=%f \r\n", Counter, Controller.m_PitchCV, Controller.m_Amplitude, Controller.m_FrequencyHz);
+            g_Serial.printf("ReadControls %d : %f %d Freq=%f \r\n",
+                              Counter,
+                              Controller.m_PitchCV,
+                              Controller.m_OscillatorSource.m_Amplitude,
+                              Controller.m_OscillatorSource.m_FrequencyHz);
         }
         else
         {
