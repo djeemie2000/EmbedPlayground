@@ -1,6 +1,6 @@
 #pragma once
 
-static const int MinMidiNoteNumber = 21;
+static const int MinMidiNoteNumber = 20;
 static const int MaxMidiNoteNumber = 127;
 
 static const int MidiNoteFrequencyMilliHz[] = {

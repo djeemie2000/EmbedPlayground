@@ -39,14 +39,14 @@ void TestOscillatorTimings()
 
 struct SController
 {
-    static const int SamplingFrequency = 96000;//44100;//?
+    static const int SamplingFrequency = 96000;
 
     CInterruptInManager m_Trigger;
 
     AnalogIn m_PitchCVIn;
     float m_PitchCV;
 
-    COscillatorSource<float> m_OscillatorSource;
+    COscillatorSource<float> m_Source;
     CAnalogOutRenderer<int> m_Renderer;
 
     CRenderManager<COscillatorSource<float>, CAnalogOutRenderer<int>> m_RenderManager;
@@ -55,7 +55,7 @@ struct SController
      : m_Trigger(D7)
      , m_PitchCVIn(A4)
      , m_PitchCV(0)
-     , m_OscillatorSource(SamplingFrequency)
+     , m_Source(SamplingFrequency)
      , m_Renderer(D13)
      , m_RenderManager()
     {
@@ -63,16 +63,16 @@ struct SController
 
     void Start()
     {
-        m_RenderManager.Start(SamplingFrequency, &m_OscillatorSource, &m_Renderer);
-        m_OscillatorSource.SetFrequencyHz(110.0f);
-        m_OscillatorSource.SetAmplitude(0);
+        m_RenderManager.Start(SamplingFrequency, &m_Source, &m_Renderer);
+        m_Source.SetFrequencyHz(110.0f);
+        m_Source.SetAmplitude(0);
         m_Trigger.Start();
     }
 
     void ReadControls()
     {
         // triggers CV pitch
-        m_OscillatorSource.SetAmplitude(m_Trigger.Read());
+        m_Source.SetAmplitude(m_Trigger.Read());
         //  sample pitch CV
         SamplePitch();
      }
@@ -80,17 +80,20 @@ struct SController
      void SamplePitch()
      {
          // TODO try a one pole LPF on Value???
-         float Value = m_PitchCVIn.read();
-         m_PitchCV = (15*m_PitchCV+Value)/16;
+         float Val = m_PitchCVIn.read();
+         //m_PitchCV = Value;
+         m_PitchCV = (Val+m_PitchCV)/2;//
+         //m_PitchCV = (15*m_PitchCV+Value)/16;
 
-         const float ReferenceVoltage = 3.3f;
-         const float VoltageDivider = 2.07f;// 2.03f;//????
-         float Voltage = VoltageDivider*m_PitchCV*ReferenceVoltage;
-         int MidiNote = Voltage*12 + 0.5f;
+         float ReferenceVltage = 3.3f;
+         float VltageMult = 1.99;//2.07f;// 2.03f;//????
+         float Vltage = VltageMult*m_PitchCV*ReferenceVltage;
+         int MidiNote = Vltage*12 + 0.5f;
 
-         float Freq = GetMidiNoteFrequencyMilliHz(MidiNote+36)/1000.0f;//starts with C1?
-         m_OscillatorSource.SetFrequencyHz(Freq);
-         //g_Serial.printf("%f = %f V  -> Note %d %f Hz \r\n", Value, Voltage, MidiNote, Freq);
+         float Freq = GetMidiNoteFrequencyMilliHz(MidiNote+24)/1000.0f;//starts with C1?
+         m_Source.SetFrequencyHz(Freq);
+
+         //g_Serial.printf("%f = %f V  -> Note %d %f Hz \r\n", m_PitchCV, Vltage, MidiNote, Freq);
      }
 };
 
@@ -106,6 +109,7 @@ int main()
 
     SController Controller;
     // TODO some timings and tests on controller!
+    // timing analog out write ( m_Renderer.Render(m_Source.Render()) )
 
     g_Serial.printf("Start...\r\n");
     Controller.Start();
@@ -120,8 +124,8 @@ int main()
             g_Serial.printf("ReadControls %d : %f %d Freq=%f \r\n",
                               Counter,
                               Controller.m_PitchCV,
-                              Controller.m_OscillatorSource.m_Amplitude,
-                              Controller.m_OscillatorSource.m_FrequencyHz);
+                              Controller.m_Source.m_Amplitude,
+                              Controller.m_Source.m_FrequencyHz);
         }
         else
         {
