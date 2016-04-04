@@ -101,7 +101,7 @@ struct SController
          float Voltage = VoltageDivider*m_PitchCV*ReferenceVoltage;
          int MidiNote = Voltage*12 + 0.5f;
 
-         float Freq = GetMidiNoteFrequencyMilliHz(MidiNote+24)/1000.0f;//starts with C1?
+         float Freq = GetMidiNoteFrequencyMilliHz(MidiNote+36)/1000.0f;//starts with C1?
          m_FrequencyHz = Freq;
          //pc.printf("%f = %f V  -> Note %d %f Hz \r\n", Value, Voltage, MidiNote, Freq);
      }
@@ -120,7 +120,7 @@ int main()
     SController Controller;
     // TODO some timings and tests on controller!
 
-    pc.printf("Start");
+    pc.printf("Start...\r\n");
     Controller.Start();
 
     int Counter = 0;
@@ -130,7 +130,7 @@ int main()
         ++Counter;
         if(Counter % (2*1000) == 0)
         {
-            pc.printf("WriteToBuffer %d Freq=%f \r\n", Counter, Controller.m_FrequencyHz);
+            pc.printf("ReadControls %d : %f %d Freq=%f \r\n", Counter, Controller.m_PitchCV, Controller.m_Amplitude, Controller.m_FrequencyHz);
         }
         else
         {
