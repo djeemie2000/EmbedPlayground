@@ -86,7 +86,7 @@ struct SController
          //m_PitchCV = (15*m_PitchCV+Value)/16;
 
          float ReferenceVltage = 3.3f;
-         float VltageMult = 1.99;//2.07f;// 2.03f;//????
+         float VltageMult = 2.01f;//1.99;//2.07f;// 2.03f;//????
          float Vltage = VltageMult*m_PitchCV*ReferenceVltage;
          int MidiNote = Vltage*12 + 0.5f;
 
@@ -96,6 +96,25 @@ struct SController
          //g_Serial.printf("%f = %f V  -> Note %d %f Hz \r\n", m_PitchCV, Vltage, MidiNote, Freq);
      }
 };
+
+
+void TestRenderTimings(SController& Controller)
+{
+    g_Serial.printf("Test render timings...\r\n");
+
+    const int SamplingFrequency = 96000;
+
+    Timer MyTimer;
+    MyTimer.start();
+    for(int Repeat = 0; Repeat<SamplingFrequency; ++Repeat)
+    {
+        Controller.m_Renderer.Render(Controller.m_Source.Render());
+    }
+    MyTimer.stop();
+
+    int Elapsed = MyTimer.read_ms();
+    g_Serial.printf("%d samples %d mSec \r\n", SamplingFrequency, Elapsed);
+}
 
 
 int main()
@@ -110,6 +129,7 @@ int main()
     SController Controller;
     // TODO some timings and tests on controller!
     // timing analog out write ( m_Renderer.Render(m_Source.Render()) )
+    TestRenderTimings(Controller);
 
     g_Serial.printf("Start...\r\n");
     Controller.Start();
