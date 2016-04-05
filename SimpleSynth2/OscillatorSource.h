@@ -15,7 +15,7 @@ public:
 
     T Render()
     {
-        return m_Oscillator(m_FrequencyHz, m_Amplitude);
+        return m_Oscillator(m_FrequencyHz, m_Amplitude, m_DetuneA, m_DetuneB);
     }
 
     void SetAmplitude(T Amplitude)
@@ -28,10 +28,18 @@ public:
         m_FrequencyHz = FrequencyHz;
     }
 
+    void SetDetune(T Detune)
+    {
+        m_DetuneA = Detune;
+        m_DetuneB = 1/Detune;
+    }
+
 private:
     COscillator<T> m_Oscillator;
 
 public:
     T m_FrequencyHz;
     T m_Amplitude;
+    T m_DetuneA;
+    T m_DetuneB;
 };

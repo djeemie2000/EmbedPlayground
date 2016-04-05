@@ -24,13 +24,15 @@ void TestOscillatorTimings()
     COscillator<float> Oscillator(SamplingFrequency);
     float FrequencyHz = 110.0f;
     float Amplitude = 1;
+    float DetuneA = 1.1f;
+    float DetuneB = 0.9f;
 
     Timer MyTimer;
     MyTimer.start();
     float UseValue =0;
     for(int Repeat = 0; Repeat<SamplingFrequency; ++Repeat)
     {
-        UseValue += Oscillator(FrequencyHz, Amplitude);
+        UseValue += Oscillator(FrequencyHz, Amplitude, DetuneA, DetuneB);
     }
     MyTimer.stop();
     int Elapsed = MyTimer.read_ms();
@@ -46,6 +48,8 @@ struct SController
     AnalogIn m_PitchCVIn;
     float m_PitchCV;
 
+    AnalogIn m_DetuneCV;
+
     COscillatorSource<float> m_Source;
     CAnalogOutRenderer<int> m_Renderer;
 
@@ -55,6 +59,7 @@ struct SController
      : m_Trigger(D7)
      , m_PitchCVIn(A4)
      , m_PitchCV(0)
+     , m_DetuneCV(A0)
      , m_Source(SamplingFrequency)
      , m_Renderer(D13)
      , m_RenderManager()
@@ -75,6 +80,8 @@ struct SController
         m_Source.SetAmplitude(m_Trigger.Read());
         //  sample pitch CV
         SamplePitch();
+        // CV detune: CV [0,1] -> detune [1,2]
+        m_Source.SetDetune(1+0.2*m_DetuneCV.read());
      }
 
      void SamplePitch()
@@ -86,7 +93,7 @@ struct SController
          //m_PitchCV = (15*m_PitchCV+Value)/16;
 
          float ReferenceVltage = 3.3f;
-         float VltageMult = 2.01f;//1.99;//2.07f;// 2.03f;//????
+         float VltageMult = 2.04f;//1.99;//2.07f;// 2.03f;//????
          float Vltage = VltageMult*m_PitchCV*ReferenceVltage;
          int MidiNote = Vltage*12 + 0.5f;
 
@@ -141,11 +148,13 @@ int main()
         ++Counter;
         if(Counter % (2*1000) == 0)
         {
-            g_Serial.printf("ReadControls %d : %f %d Freq=%f \r\n",
+            g_Serial.printf("ReadControls %d : %f %d Freq=%f Detune=%f %f \r\n",
                               Counter,
                               Controller.m_PitchCV,
                               Controller.m_Source.m_Amplitude,
-                              Controller.m_Source.m_FrequencyHz);
+                              Controller.m_Source.m_FrequencyHz,
+                              Controller.m_Source.m_DetuneA,
+                              Controller.m_Source.m_DetuneB);
         }
         else
         {
