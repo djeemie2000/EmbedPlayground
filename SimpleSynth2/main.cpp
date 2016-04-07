@@ -49,6 +49,7 @@ struct SController
     float m_PitchCV;
 
     AnalogIn m_DetuneCV;
+    AnalogIn m_CutoffCV;
 
     COscillatorSource<float> m_Source;
     CAnalogOutRenderer<int> m_Renderer;
@@ -60,6 +61,7 @@ struct SController
      , m_PitchCVIn(A4)
      , m_PitchCV(0)
      , m_DetuneCV(A0)
+     , m_CutoffCV(A1)
      , m_Source(SamplingFrequency)
      , m_Renderer(D13)
      , m_RenderManager()
@@ -80,8 +82,10 @@ struct SController
         m_Source.SetAmplitude(m_Trigger.Read());
         //  sample pitch CV
         SamplePitch();
-        // CV detune: CV [0,1] -> detune [1,2]
-        m_Source.SetDetune(1+0.2*m_DetuneCV.read());
+        // CV detune: CV [0,1]
+        m_Source.SetDetune(m_DetuneCV.read());
+        //
+        m_Source.SetCutoff(m_CutoffCV.read());
      }
 
      void SamplePitch()
@@ -93,7 +97,7 @@ struct SController
          //m_PitchCV = (15*m_PitchCV+Value)/16;
 
          float ReferenceVltage = 3.3f;
-         float VltageMult = 2.04f;//1.99;//2.07f;// 2.03f;//????
+         float VltageMult = 2.03f;//1.99;//2.07f;// 2.03f;//????
          float Vltage = VltageMult*m_PitchCV*ReferenceVltage;
          int MidiNote = Vltage*12 + 0.5f;
 

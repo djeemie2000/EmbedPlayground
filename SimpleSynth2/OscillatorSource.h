@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Oscillator.h"
+#include "FourPoleFilter.h"
 
 
 template<class T>
@@ -11,11 +12,14 @@ public:
      : m_Oscillator(SamplingFrequency)
      , m_FrequencyHz(110)
      , m_Amplitude(0)
+     , m_DetuneA(1)
+     , m_DetuneB(1)
+     , m_CutOff(1)
     {}
 
     T Render()
     {
-        return m_Oscillator(m_FrequencyHz, m_Amplitude, m_DetuneA, m_DetuneB);
+        return m_LPF(m_Oscillator(m_FrequencyHz, m_Amplitude, m_DetuneA, m_DetuneB), m_CutOff);
     }
 
     void SetAmplitude(T Amplitude)
@@ -30,16 +34,24 @@ public:
 
     void SetDetune(T Detune)
     {
-        m_DetuneA = Detune;
-        m_DetuneB = 1/Detune;
+        m_DetuneA = 1+Detune/2;
+        m_DetuneB = 1/m_DetuneA;
+        //m_DetuneB = 1-Detune/2;
+    }
+
+    void SetCutoff(T CutOff)
+    {
+        m_CutOff = CutOff;
     }
 
 private:
     COscillator<T> m_Oscillator;
+    CFourPoleLowPassFilter<T> m_LPF;
 
 public:
     T m_FrequencyHz;
     T m_Amplitude;
     T m_DetuneA;
     T m_DetuneB;
+    T m_CutOff;
 };
