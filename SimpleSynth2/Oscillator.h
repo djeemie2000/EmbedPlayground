@@ -28,7 +28,7 @@ public:
                 + m_PhaseAccumulatorB(m_PhaseStepB(FrequencyHz*DetuneB))
                 + m_OscillatorSub(m_PhaseAccumulatorSub(m_PhaseStepSub(FrequencyHz*m_DetuneSub)));
 
-        return (1<<15)*(1+0.33f*Value);
+        return (1<<15)*(1+Amplitude*0.33f*Value);
     }
 
 private:
