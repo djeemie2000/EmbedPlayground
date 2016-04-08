@@ -41,7 +41,7 @@ public:
 
     void SetCutoff(T CutOff)
     {
-        m_CutOff = CutOff;
+        m_CutOff = (1+3*CutOff)/4;// [0,1] -> [0.25, 1]
     }
 
 private:
