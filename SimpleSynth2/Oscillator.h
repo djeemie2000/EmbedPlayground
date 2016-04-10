@@ -22,13 +22,13 @@ public:
      , m_OscillatorSub()
     {}
 
-    int operator()(T FrequencyHz, T Amplitude, T DetuneA, T DetuneB)
+    T operator()(T FrequencyHz, T Amplitude, T DetuneA, T DetuneB)
     {
         T Value = m_PhaseAccumulatorA(m_PhaseStepA(FrequencyHz*DetuneA))
                 + m_PhaseAccumulatorB(m_PhaseStepB(FrequencyHz*DetuneB))
                 + m_OscillatorSub(m_PhaseAccumulatorSub(m_PhaseStepSub(FrequencyHz*m_DetuneSub)));
 
-        return 0.33f*Value;
+        return Amplitude*0.33f*Value;
         //return (1<<15)*(1+Amplitude*0.33f*Value);
     }
 

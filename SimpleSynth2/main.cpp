@@ -56,8 +56,8 @@ struct SController
     CAnalogInSource<float> m_InSource;
     CAnalogOutRenderer<float> m_Renderer;
 
-    //CRenderManager<COscillatorSource<float>, CAnalogOutRenderer<int>> m_RenderManager;
-    CRenderManager<CAnalogInSource<float>, CAnalogOutRenderer<float>> m_RenderManager;
+    CRenderManager<COscillatorSource<float>, CAnalogOutRenderer<float>> m_RenderManager;
+    //CRenderManager<CAnalogInSource<float>, CAnalogOutRenderer<float>> m_RenderManager;
 
     SController()
      : m_Trigger(D7)
@@ -74,8 +74,8 @@ struct SController
 
     void Start()
     {
-        //m_RenderManager.Start(SamplingFrequency, &m_Source, &m_Renderer);
-        m_RenderManager.Start(SamplingFrequency, &m_InSource, &m_Renderer);
+        m_RenderManager.Start(SamplingFrequency, &m_Source, &m_Renderer);
+        //m_RenderManager.Start(SamplingFrequency, &m_InSource, &m_Renderer);
         m_Source.SetFrequencyHz(110.0f);
         m_Source.SetAmplitude(1);
         m_Trigger.Start();
@@ -84,15 +84,14 @@ struct SController
     void ReadControls()
     {
         // triggers CV pitch
-        //m_Source.SetAmplitude(m_Trigger.Read());
-        //m_Source.m_Amplitude = 1;
+        m_Source.SetAmplitude(m_Trigger.Read());
 
         //  sample pitch CV
-        //SamplePitch();
+        SamplePitch();
         // CV detune: CV [0,1]
-        //m_Source.SetDetune(m_DetuneCV.read());
+        m_Source.SetDetune(m_DetuneCV.read());
         //
-        //m_Source.SetCutoff(m_CutoffCV.read());
+        m_Source.SetCutoff(m_CutoffCV.read());
         //
         m_InSource.SetAmplitude(1);
      }
@@ -129,8 +128,8 @@ void TestRenderTimings(SController& Controller)
     MyTimer.start();
     for(int Repeat = 0; Repeat<SamplingFrequency; ++Repeat)
     {
-        //Controller.m_Renderer.Render(Controller.m_Source.Render());
-        Controller.m_Renderer.Render(Controller.m_InSource.Render());
+        Controller.m_Renderer.Render(Controller.m_Source.Render());
+        //Controller.m_Renderer.Render(Controller.m_InSource.Render());
     }
     MyTimer.stop();
 
@@ -163,11 +162,7 @@ int main()
         Controller.ReadControls();
         ++Counter;
         if(Counter % (5*1000) == 0)
-        {
-            g_Serial.printf("ReadControls %d :  %f %f \r\n", Counter, Controller.m_InSource.m_Min, Controller.m_InSource.m_Max);
-            Controller.m_InSource.ResetMinMax();
-
-
+        {           
             g_Serial.printf("ReadControls %d : %f %f Freq=%f Detune=%f %f \r\n",
                               Counter,
                               Controller.m_PitchCV,
