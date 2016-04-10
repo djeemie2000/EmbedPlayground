@@ -10,6 +10,7 @@
 #include "OscillatorSource.h"
 #include "AnalogOutRenderer.h"
 #include "RenderManager.h"
+#include "AnalogInSource.h"
 
 // global serial out
 Serial g_Serial(USBTX, USBRX);
@@ -52,9 +53,11 @@ struct SController
     AnalogIn m_CutoffCV;
 
     COscillatorSource<float> m_Source;
-    CAnalogOutRenderer<int> m_Renderer;
+    CAnalogInSource<float> m_InSource;
+    CAnalogOutRenderer<float> m_Renderer;
 
-    CRenderManager<COscillatorSource<float>, CAnalogOutRenderer<int>> m_RenderManager;
+    //CRenderManager<COscillatorSource<float>, CAnalogOutRenderer<int>> m_RenderManager;
+    CRenderManager<CAnalogInSource<float>, CAnalogOutRenderer<float>> m_RenderManager;
 
     SController()
      : m_Trigger(D7)
@@ -63,6 +66,7 @@ struct SController
      , m_DetuneCV(A0)
      , m_CutoffCV(A1)
      , m_Source(SamplingFrequency)
+     , m_InSource(A2)
      , m_Renderer(D13)
      , m_RenderManager()
     {
@@ -70,22 +74,27 @@ struct SController
 
     void Start()
     {
-        m_RenderManager.Start(SamplingFrequency, &m_Source, &m_Renderer);
+        //m_RenderManager.Start(SamplingFrequency, &m_Source, &m_Renderer);
+        m_RenderManager.Start(SamplingFrequency, &m_InSource, &m_Renderer);
         m_Source.SetFrequencyHz(110.0f);
-        m_Source.SetAmplitude(0);
+        m_Source.SetAmplitude(1);
         m_Trigger.Start();
     }
 
     void ReadControls()
     {
         // triggers CV pitch
-        m_Source.SetAmplitude(m_Trigger.Read());
+        //m_Source.SetAmplitude(m_Trigger.Read());
+        //m_Source.m_Amplitude = 1;
+
         //  sample pitch CV
-        SamplePitch();
+        //SamplePitch();
         // CV detune: CV [0,1]
-        m_Source.SetDetune(m_DetuneCV.read());
+        //m_Source.SetDetune(m_DetuneCV.read());
         //
-        m_Source.SetCutoff(m_CutoffCV.read());
+        //m_Source.SetCutoff(m_CutoffCV.read());
+        //
+        m_InSource.SetAmplitude(1);
      }
 
      void SamplePitch()
@@ -114,12 +123,14 @@ void TestRenderTimings(SController& Controller)
     g_Serial.printf("Test render timings...\r\n");
 
     const int SamplingFrequency = 96000;
+    Controller.m_InSource.SetAmplitude(1);
 
     Timer MyTimer;
     MyTimer.start();
     for(int Repeat = 0; Repeat<SamplingFrequency; ++Repeat)
     {
-        Controller.m_Renderer.Render(Controller.m_Source.Render());
+        //Controller.m_Renderer.Render(Controller.m_Source.Render());
+        Controller.m_Renderer.Render(Controller.m_InSource.Render());
     }
     MyTimer.stop();
 
@@ -141,6 +152,7 @@ int main()
     // TODO some timings and tests on controller!
     // timing analog out write ( m_Renderer.Render(m_Source.Render()) )
     TestRenderTimings(Controller);
+    wait(2);
 
     g_Serial.printf("Start...\r\n");
     Controller.Start();
@@ -150,9 +162,13 @@ int main()
     {
         Controller.ReadControls();
         ++Counter;
-        if(Counter % (2*1000) == 0)
+        if(Counter % (5*1000) == 0)
         {
-            g_Serial.printf("ReadControls %d : %f %d Freq=%f Detune=%f %f \r\n",
+            g_Serial.printf("ReadControls %d :  %f %f \r\n", Counter, Controller.m_InSource.m_Min, Controller.m_InSource.m_Max);
+            Controller.m_InSource.ResetMinMax();
+
+
+            g_Serial.printf("ReadControls %d : %f %f Freq=%f Detune=%f %f \r\n",
                               Counter,
                               Controller.m_PitchCV,
                               Controller.m_Source.m_Amplitude,

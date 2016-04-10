@@ -40,6 +40,7 @@ set(BLINKLED_SRC
   OscillatorSource.h
   RenderManager.h
   AnalogOutRenderer.h
+  AnalogInSource.h
   main.cpp
 )
 
