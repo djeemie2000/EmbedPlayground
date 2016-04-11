@@ -44,14 +44,6 @@ struct SController
 {
     static const int SamplingFrequency = 96000;
 
-    CInterruptInManager m_Trigger;
-
-    AnalogIn m_PitchCVIn;
-    float m_PitchCV;
-
-    AnalogIn m_DetuneCV;
-    AnalogIn m_CutoffCV;
-
     COscillatorSource<float> m_Source;
     CAnalogInSource<float> m_InSource;
     CAnalogOutRenderer<float> m_Renderer;
@@ -60,12 +52,7 @@ struct SController
     //CRenderManager<CAnalogInSource<float>, CAnalogOutRenderer<float>> m_RenderManager;
 
     SController()
-     : m_Trigger(D7)
-     , m_PitchCVIn(A4)
-     , m_PitchCV(0)
-     , m_DetuneCV(A0)
-     , m_CutoffCV(A1)
-     , m_Source(SamplingFrequency)
+     : m_Source(SamplingFrequency)
      , m_InSource(A2)
      , m_Renderer(D13)
      , m_RenderManager()
@@ -78,42 +65,9 @@ struct SController
         //m_RenderManager.Start(SamplingFrequency, &m_InSource, &m_Renderer);
         m_Source.SetFrequencyHz(110.0f);
         m_Source.SetAmplitude(1);
-        m_Trigger.Start();
+        m_Source.SetCutoff(1);
+        m_Source.SetDetune(0);
     }
-
-    void ReadControls()
-    {
-        // triggers CV pitch
-        m_Source.SetAmplitude(m_Trigger.Read());
-
-        //  sample pitch CV
-        SamplePitch();
-        // CV detune: CV [0,1]
-        m_Source.SetDetune(m_DetuneCV.read());
-        //
-        m_Source.SetCutoff(m_CutoffCV.read());
-        //
-        m_InSource.SetAmplitude(1);
-     }
-
-     void SamplePitch()
-     {
-         // TODO try a one pole LPF on Value???
-         float Val = m_PitchCVIn.read();
-         //m_PitchCV = Value;
-         m_PitchCV = (Val+m_PitchCV)/2;//
-         //m_PitchCV = (15*m_PitchCV+Value)/16;
-
-         float ReferenceVltage = 3.3f;
-         float VltageMult = 2.03f;//1.99;//2.07f;// 2.03f;//????
-         float Vltage = VltageMult*m_PitchCV*ReferenceVltage;
-         int MidiNote = Vltage*12 + 0.5f;
-
-         float Freq = GetMidiNoteFrequencyMilliHz(MidiNote+24)/1000.0f;//starts with C1?
-         m_Source.SetFrequencyHz(Freq);
-
-         //g_Serial.printf("%f = %f V  -> Note %d %f Hz \r\n", m_PitchCV, Vltage, MidiNote, Freq);
-     }
 };
 
 
@@ -159,13 +113,17 @@ int main()
     int Counter = 0;
     while(true)
     {
-        Controller.ReadControls();
         ++Counter;
         if(Counter % (5*1000) == 0)
         {           
-            g_Serial.printf("ReadControls %d : %f %f Freq=%f Detune=%f %f \r\n",
+            g_Serial.printf("ReadControls %d : ? CutOff=%f %f \r\n",
                               Counter,
-                              Controller.m_PitchCV,
+                              //Controller.m_InSource.m_Amplitude,
+                              Controller.m_InSource.m_CutOff);
+
+            g_Serial.printf("ReadControls %d : %f Freq=%f Detune=%f %f \r\n",
+                              Counter,
+                              //Controller.m_Source.m_PitchCV,
                               Controller.m_Source.m_Amplitude,
                               Controller.m_Source.m_FrequencyHz,
                               Controller.m_Source.m_DetuneA,
