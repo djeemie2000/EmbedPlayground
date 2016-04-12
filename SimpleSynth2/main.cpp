@@ -10,7 +10,6 @@
 #include "OscillatorSource.h"
 #include "AnalogOutRenderer.h"
 #include "RenderManager.h"
-#include "AnalogInSource.h"
 
 // global serial out
 Serial g_Serial(USBTX, USBRX);
@@ -45,15 +44,12 @@ struct SController
     static const int SamplingFrequency = 96000;
 
     COscillatorSource<float> m_Source;
-    CAnalogInSource<float> m_InSource;
     CAnalogOutRenderer<float> m_Renderer;
 
     CRenderManager<COscillatorSource<float>, CAnalogOutRenderer<float>> m_RenderManager;
-    //CRenderManager<CAnalogInSource<float>, CAnalogOutRenderer<float>> m_RenderManager;
 
     SController()
      : m_Source(SamplingFrequency)
-     , m_InSource(A2)
      , m_Renderer(D13)
      , m_RenderManager()
     {
@@ -62,11 +58,6 @@ struct SController
     void Start()
     {
         m_RenderManager.Start(SamplingFrequency, &m_Source, &m_Renderer);
-        //m_RenderManager.Start(SamplingFrequency, &m_InSource, &m_Renderer);
-        m_Source.SetFrequencyHz(110.0f);
-        m_Source.SetAmplitude(1);
-        m_Source.SetCutoff(1);
-        m_Source.SetDetune(0);
     }
 };
 
@@ -76,7 +67,6 @@ void TestRenderTimings(SController& Controller)
     g_Serial.printf("Test render timings...\r\n");
 
     const int SamplingFrequency = 96000;
-    Controller.m_InSource.SetAmplitude(1);
 
     Timer MyTimer;
     MyTimer.start();
@@ -115,12 +105,7 @@ int main()
     {
         ++Counter;
         if(Counter % (5*1000) == 0)
-        {           
-            g_Serial.printf("ReadControls %d : ? CutOff=%f %f \r\n",
-                              Counter,
-                              //Controller.m_InSource.m_Amplitude,
-                              Controller.m_InSource.m_CutOff);
-
+        {
             g_Serial.printf("ReadControls %d : %f Freq=%f Detune=%f %f \r\n",
                               Counter,
                               //Controller.m_Source.m_PitchCV,

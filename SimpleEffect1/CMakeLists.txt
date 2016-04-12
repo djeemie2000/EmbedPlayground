@@ -9,7 +9,7 @@ set(CMAKE_TOOLCHAIN_FILE ../mbed-cmake/arm_toolchain.cmake)
 
 cmake_minimum_required(VERSION 2.8.1)
 
-project (SimpleSynth2 C CXX ASM)
+project (SimpleEffect1 C CXX ASM)
 
 # ------------------------------------------------------------------------------
 # set the target processor and include settings for cmake
@@ -36,13 +36,12 @@ set(SERCON /dev/ttyACM0)
 # ------------------------------------------------------------------------------
 # build the executable
 set(BLINKLED_SRC  
-  Oscillator.h
-  OscillatorSource.h
+  AnalogInSource.h
   main.cpp
 )
 
 set(BIN
-  SimpleSynth2
+  SimpleEffect1
 )
 
 include(../mbed-cmake/arm_mbed.cmake)
