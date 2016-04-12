@@ -38,8 +38,6 @@ set(SERCON /dev/ttyACM0)
 set(BLINKLED_SRC  
   Oscillator.h
   OscillatorSource.h
-  RenderManager.h
-  AnalogOutRenderer.h
   AnalogInSource.h
   main.cpp
 )
@@ -50,9 +48,10 @@ set(BIN
 
 include(../mbed-cmake/arm_mbed.cmake)
 
-include_directories(./../Utilities ./../MidiLib ./../SynthLib)
+include_directories(./../Utilities ./../AudioLib ./../MidiLib ./../SynthLib)
 
 add_subdirectory(../Utilities Utilities)
+add_subdirectory(../AudioLib AudioLib)
 add_subdirectory(../MidiLib MidiLib)
 add_subdirectory(../SynthLib SynthLib)
 
@@ -67,6 +66,7 @@ add_executable(${BIN}
 
 target_link_libraries(${BIN}
                         Utilities
+                        AudioLib
                         MidiLib
                         SynthLib
                         ${MBED_LIBS})

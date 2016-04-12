@@ -13,7 +13,7 @@ public:
 
     void Render(T Value)
     {
-        m_AnalogOut.write( (1+Value)/2 );
+        m_AnalogOut.write( (1+Value)/2 );//[-1,+1] to [0,1]
     }
 
 private:
