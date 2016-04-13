@@ -10,6 +10,8 @@ ADD_DEFINITIONS(
 add_library(AudioLib
     AnalogOutRenderer.h
     RenderManager.h
+    StereoAnalogOutRenderer.h
+    StereoValue.h
     Dummy.cpp
 )
 
