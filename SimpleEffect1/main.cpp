@@ -6,9 +6,9 @@
 #include "MidiNoteFrequencies.h"
 
 // includes for project specific stuff
-#include "AnalogOutRenderer.h"
+#include "StereoAnalogOutRenderer.h"
 #include "RenderManager.h"
-#include "AnalogInSource.h"
+#include "StereoAnalogInSource.h"
 
 // global serial out
 Serial g_Serial(USBTX, USBRX);
@@ -19,14 +19,14 @@ struct SController
 {
     static const int SamplingFrequency = 96000;
 
-    CAnalogInSource<float> m_InSource;
-    CAnalogOutRenderer<float> m_Renderer;
+    CStereoAnalogInSource<float> m_InSource;
+    CStereoAnalogOutRenderer<float> m_Renderer;
 
-    CRenderManager<CAnalogInSource<float>, CAnalogOutRenderer<float>> m_RenderManager;
+    CRenderManager<CStereoAnalogInSource<float>, CStereoAnalogOutRenderer<float>> m_RenderManager;
 
     SController()
-     : m_InSource(A2)
-     , m_Renderer(D13)
+     : m_InSource(A3)
+     , m_Renderer(D13, A2)
      , m_RenderManager()
     {
     }
