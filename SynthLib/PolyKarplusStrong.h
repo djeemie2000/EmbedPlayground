@@ -87,7 +87,7 @@ public:
             T Period = m_SamplingFrequencyHz/Frequency;
             if(Period<Capacity)
             {
-                T AttackSamples = CConstNumSamplesGenerator<float>(m_SamplingFrequencyHz).SetMilliSeconds(AttackMilliSeconds);
+                T AttackSamples = CConstNumSamplesGenerator<T>(m_SamplingFrequencyHz).SetMilliSeconds(AttackMilliSeconds);
 
                 m_Operator[Operator].m_GainLeft = std::min(T(1), 1-Pan);
                 m_Operator[Operator].m_GainRight = std::min(T(1), 1+Pan);

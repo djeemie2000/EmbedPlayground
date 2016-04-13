@@ -22,7 +22,7 @@ public:
 
     void Select(int Selected)
     {
-        if(0<=Selected && Selected<m_Operators.size())
+        if(0<=Selected && Selected<static_cast<int>(m_Operators.size()))
         {
             m_Current = m_Operators[Selected];
         }
