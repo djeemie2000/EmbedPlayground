@@ -24,6 +24,7 @@ public:
      , m_DampCV(A0)
      , m_ExciteCV(A1)
      , m_AttackCV(A3)
+     , m_Cnt(0)
     {
         m_Oscillator.SetSamplingFrequency(SamplingFrequency);
     }
@@ -34,10 +35,13 @@ public:
 
         if(m_Trigger)
         {
-            m_Oscillator.Excite(m_Selector.Select(), m_Excite, m_FrequencyHz, m_Damp, m_Attack*1000, 0);
+            ++m_Cnt;
+            m_TriggerFreq = m_FrequencyHz;
+            m_Trigger = false;
+            m_Oscillator.Excite(1<NumOperators?m_Selector.Select():0, m_Excite, m_FrequencyHz, m_Damp, m_Attack*1000, 0);
         }
 
-        return m_Oscillator();
+        return m_Normalize*m_Oscillator();
     }
 
     void SetAmplitude(int Amplitude)
@@ -115,6 +119,7 @@ private:
     static const int NumOperators = 8;
     synthlib::CSelector<NumOperators>                       m_Selector;
     synthlib::CPolyKarplusStrong<T, Capacity, NumOperators> m_Oscillator;
+    const T m_Normalize = T(2)/NumOperators;
 
 public:
     T m_FrequencyHz;
@@ -123,6 +128,9 @@ public:
     T m_Damp;
     T m_Excite;
     T m_Attack;
+
+    int m_Cnt;
+    T m_TriggerFreq;
 
 private:
     int m_Counter;

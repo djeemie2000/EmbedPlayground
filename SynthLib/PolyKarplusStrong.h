@@ -133,7 +133,7 @@ private:
             , m_Cntr(0)// not excited
             , m_DelayLine(0)
             , m_DampLPF()
-            , m_DCOffset(0, T(1)/2048)
+            , m_DCOffset(0, T(1)/8192)
             , m_Envelope()
             , m_GainLeft(1)
             , m_GainRight(1)

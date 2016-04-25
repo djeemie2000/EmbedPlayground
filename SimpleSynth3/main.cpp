@@ -6,7 +6,6 @@
 #include "MidiNoteFrequencies.h"
 
 // includes for project specific stuff
-#include "Oscillator.h"
 #include "OscillatorSource.h"
 #include "AnalogOutRenderer.h"
 #include "RenderManager.h"
@@ -16,37 +15,16 @@ Serial g_Serial(USBTX, USBRX);
 
 // F446RE AnalogOut: A2 or D13
 
-void TestOscillatorTimings()
-{
-    g_Serial.printf("Test oscillator timings...\r\n");
-
-    const int SamplingFrequency = 96000;
-    COscillator<float> Oscillator(SamplingFrequency);
-    float FrequencyHz = 110.0f;
-    float Amplitude = 1;
-    float DetuneA = 1.1f;
-    float DetuneB = 0.9f;
-
-    Timer MyTimer;
-    MyTimer.start();
-    float UseValue =0;
-    for(int Repeat = 0; Repeat<SamplingFrequency; ++Repeat)
-    {
-        UseValue += Oscillator(FrequencyHz, Amplitude, DetuneA, DetuneB);
-    }
-    MyTimer.stop();
-    int Elapsed = MyTimer.read_ms();
-    g_Serial.printf("%d samples %d mSec (%f)\r\n", SamplingFrequency, Elapsed, UseValue);
-}
-
 struct SController
 {
     static const int SamplingFrequency = 96000;
+    static const int MinFreqHz = 32;
+    static const int Capacity = SamplingFrequency/MinFreqHz;
 
-    COscillatorSource<float, SamplingFrequency> m_Source;
+    COscillatorSource<float, Capacity> m_Source;//TODO stereo
     CAnalogOutRenderer<float> m_Renderer;
 
-    CRenderManager<COscillatorSource<float, SamplingFrequency>, CAnalogOutRenderer<float>> m_RenderManager;
+    CRenderManager<COscillatorSource<float, Capacity>, CAnalogOutRenderer<float>> m_RenderManager;
 
     SController()
      : m_Source(SamplingFrequency)
@@ -73,7 +51,6 @@ void TestRenderTimings(SController& Controller)
     for(int Repeat = 0; Repeat<SamplingFrequency; ++Repeat)
     {
         Controller.m_Renderer.Render(Controller.m_Source.Render());
-        //Controller.m_Renderer.Render(Controller.m_InSource.Render());
     }
     MyTimer.stop();
 
@@ -84,12 +61,12 @@ void TestRenderTimings(SController& Controller)
 
 int main()
 {
-    g_Serial.printf("\r\n --- SimpleSynth 2 --- ");
+    g_Serial.printf("\r\n --- SimpleSynth 3 --- \r\n");
 
     wait(1);
 
     // test timings on oscillator!
-    TestOscillatorTimings();
+    //TestOscillatorTimings();
 
     SController Controller;
     // TODO some timings and tests on controller!
@@ -104,16 +81,18 @@ int main()
     while(true)
     {
         ++Counter;
-        if(Counter % (5*1000) == 0)
+        if(Counter % (1*1000) == 0)
         {
-            g_Serial.printf("ReadControls %d : %d Freq=%f Damp=%f Excite %f Attack %f \r\n",
+//            g_Serial.printf("ReadControls \r\n");
+            g_Serial.printf("ReadControls %d : %d Freq=%f Damp=%f Excite %f Attack %f Trigger %d %f \r\n",
                               Counter,
                               //Controller.m_Source.m_PitchCV,
                               Controller.m_Source.m_Amplitude,
                               Controller.m_Source.m_FrequencyHz,
                               Controller.m_Source.m_Damp,
                               Controller.m_Source.m_Excite,
-                              Controller.m_Source.m_Attack);
+                              Controller.m_Source.m_Attack,
+                              Controller.m_Source.m_Cnt, Controller.m_Source.m_TriggerFreq);
         }
         else
         {
